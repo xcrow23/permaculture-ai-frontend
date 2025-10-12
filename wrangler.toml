@@ -1,0 +1,13 @@
+# wrangler.toml - Cloudflare Worker configuration
+name = "permaculture-ai-worker"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# Enable workers.dev subdomain
+workers_dev = true
+
+# Environment variables (secrets set via CLI)
+# Use: wrangler secret put ANTHROPIC_API_KEY
+
+# Remove the [[routes]] section completely for now
+# You'll add custom routes later when you set up Cloudflare Pages

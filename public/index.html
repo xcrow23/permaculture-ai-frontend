@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permaculture AI Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .location-tag {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 15px 10px;
+            text-align: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tab.active {
+            background: white;
+            border-bottom: 2px solid #4CAF50;
+            color: #4CAF50;
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            padding: 20px;
+            min-height: 400px;
+        }
+        
+        .tab-panel {
+            display: none;
+        }
+        
+        .tab-panel.active {
+            display: block;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .input-group input, .input-group textarea, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .response-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            min-height: 100px;
+            white-space: pre-wrap;
+        }
+        
+        .response-box.loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .feature-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .feature-card h3 {
+            color: #4CAF50;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+        
+        .feature-card p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .quick-action {
+            background: white;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .quick-action:hover {
+            border-color: #4CAF50;
+            background: #f8fff8;
+        }
+        
+        .quick-action .icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .quick-action .label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            background: #fdf2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+        }
+
+        .success-indicator {
+            color: #059669;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="location-tag">Iowa, Zone 5</div>
+            <h1>🌱 Perma AI</h1>
+            <p>Your Intelligent Homestead Assistant</p>
+        </div>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="ask">Ask AI</button>
+            <button class="nav-tab" data-tab="plan">Plan</button>
+            <button class="nav-tab" data-tab="diagnose">Diagnose</button>
+            <button class="nav-tab" data-tab="data">Data</button>
+        </div>
+        
+        <div class="tab-content">
+            <!-- Ask AI Tab -->
+            <div class="tab-panel active" id="ask">
+                <div class="quick-actions">
+                    <div class="quick-action" onclick="askQuickQuestion('companion planting')">
+                        <div class="icon">🤝</div>
+                        <div class="label">Companions</div>
+                    </div>
+                    <div class="quick-action" onclick="askQuickQuestion('soil improvement')">
+                        <div class="icon">🌍</div>
+                        <div class="label">Soil Health</div>
+                    </div>
+                    <div class="quick-action" onclick="askQuickQuestion('pest control')">
+                        <div class="icon">🐛</div>
+                        <div class="label">Pest Control</div>
+                    </div>
+                    <div class="quick-action" onclick="askQuickQuestion('seasonal tasks')">
+                        <div class="icon">📅</div>
+                        <div class="label">Seasonal</div>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>What's your permaculture question?</label>
+                    <textarea id="userQuestion" placeholder="e.g., What should I plant next to my tomatoes in clay soil?" rows="3"></textarea>
+                </div>
+                
+                <button class="btn" onclick="askAI()">Get AI Advice</button>
+                
+                <div id="aiResponse" class="response-box" style="display:none;">
+                    <p>Your AI response will appear here...</p>
+                </div>
+            </div>
+            
+            <!-- Planning Tab -->
+            <div class="tab-panel" id="plan">
+                <h2 style="margin-bottom: 20px; color: #4CAF50;">Garden Planning</h2>
+                
+                <div class="input-group">
+                    <label>Available Space</label>
+                    <select id="spaceSize">
+                        <option>Small garden (< 500 sq ft)</option>
+                        <option>Medium garden (500-2000 sq ft)</option>
+                        <option>Large garden (2000-5000 sq ft)</option>
+                        <option selected>Small homestead (1-5 acres)</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label>Soil Type</label>
+                    <select id="soilType">
+                        <option selected>Clay (heavy, water retention)</option>
+                        <option>Sandy (light, drains quickly)</option>
+                        <option>Loam (balanced)</option>
+                        <option>Rocky/Poor</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label>Primary Goals</label>
+                    <textarea id="goals" placeholder="e.g., Food production, wildlife habitat, soil restoration, carbon sequestration..." rows="3"></textarea>
+                </div>
+                
+                <button class="btn" onclick="generatePlan()">Generate Permaculture Plan</button>
+                
+                <div id="planResponse" class="response-box" style="display:none;">
+                    <p>Your personalized plan will appear here...</p>
+                </div>
+            </div>
+            
+            <!-- Diagnose Tab -->
+            <div class="tab-panel" id="diagnose">
+                <h2 style="margin-bottom: 20px; color: #4CAF50;">Problem Diagnosis</h2>
+                
+                <div class="input-group">
+                    <label>What plant/crop are you concerned about?</label>
+                    <input type="text" id="plantName" placeholder="e.g., Tomatoes, Apple tree, Lettuce">
+                </div>
+                
+                <div class="input-group">
+                    <label>Describe the problem</label>
+                    <textarea id="problemDescription" placeholder="e.g., Yellowing leaves, spots on fruit, wilting, poor growth..." rows="4"></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label>When did you first notice this?</label>
+                    <select id="timeframe">
+                        <option>Today</option>
+                        <option>This week</option>
+                        <option>2-3 weeks ago</option>
+                        <option>Over a month ago</option>
+                    </select>
+                </div>
+                
+                <button class="btn" onclick="diagnoseIssue()">Diagnose & Get Solutions</button>
+                
+                <div id="diagnoseResponse" class="response-box" style="display:none;">
+                    <p>Diagnosis and treatment recommendations will appear here...</p>
+                </div>
+            </div>
+            
+            <!-- Data Tab -->
+            <div class="tab-panel" id="data">
+                <h2 style="margin-bottom: 20px; color: #4CAF50;">Sensor Integration</h2>
+                
+                <div class="feature-card">
+                    <h3>📊 Current Conditions</h3>
+                    <p>Real-time soil moisture, temperature, and pH readings from your garden sensors.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>📈 Historical Trends</h3>
+                    <p>Track how your soil health and plant performance improves over time.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🤖 Automated Actions</h3>
+                    <p>Set up automatic watering, alerts, and other responses based on sensor data.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🌍 Community Data</h3>
+                    <p>Learn from aggregated insights from other permaculture practitioners in your region.</p>
+                </div>
+                
+                <p style="text-align: center; color: #666; margin-top: 30px; font-style: italic;">
+                    Sensor integration coming in Phase 2 of development
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - will automatically detect deployment environment
+        const API_BASE = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3001/api'
+            : '/api'; // For Cloudflare Workers on same domain
+        
+        // Tab switching functionality
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+                
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                
+                this.classList.add('active');
+                document.getElementById(targetTab).classList.add('active');
+            });
+        });
+        
+        function askQuickQuestion(topic) {
+            document.getElementById('userQuestion').value = `Tell me about ${topic} for my Iowa permaculture garden`;
+            askAI();
+        }
+        
+        async function askAI() {
+            const question = document.getElementById('userQuestion').value;
+            const responseDiv = document.getElementById('aiResponse');
+            const button = event.target;
+            
+            if (!question.trim()) {
+                showError('Please enter a question first!', responseDiv);
+                return;
+            }
+            
+            setLoadingState(button, responseDiv, 'Claude is analyzing your question...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/ask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question: question,
+                        context: {
+                            location: 'Iowa, Zone 5',
+                            soilType: 'clay',
+                            spaceSize: 'small homestead'
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || `Server error: ${response.status}`);
+                }
+                
+                showResponse(data.response, responseDiv);
+                
+            } catch (error) {
+                console.error('API Error:', error);
+                showError(`Failed to get AI response: ${error.message}`, responseDiv);
+            } finally {
+                resetButton(button, 'Get AI Advice');
+            }
+        }
+        
+        async function generatePlan() {
+            const space = document.getElementById('spaceSize').value;
+            const soil = document.getElementById('soilType').value;
+            const goals = document.getElementById('goals').value;
+            const responseDiv = document.getElementById('planResponse');
+            const button = event.target;
+            
+            setLoadingState(button, responseDiv, 'Claude is creating your personalized plan...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/plan`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        spaceSize: space,
+                        soilType: soil,
+                        goals: goals || 'General permaculture homestead'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || `Server error: ${response.status}`);
+                }
+                
+                showResponse(data.response, responseDiv);
+                
+            } catch (error) {
+                console.error('API Error:', error);
+                showError(`Failed to generate plan: ${error.message}`, responseDiv);
+            } finally {
+                resetButton(button, 'Generate Permaculture Plan');
+            }
+        }
+        
+        async function diagnoseIssue() {
+            const plant = document.getElementById('plantName').value;
+            const problem = document.getElementById('problemDescription').value;
+            const timeframe = document.getElementById('timeframe').value;
+            const responseDiv = document.getElementById('diagnoseResponse');
+            const button = event.target;
+            
+            if (!plant.trim() || !problem.trim()) {
+                showError('Please fill in the plant name and problem description!', responseDiv);
+                return;
+            }
+            
+            setLoadingState(button, responseDiv, 'Claude is analyzing the symptoms...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/diagnose`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        plant: plant,
+                        problem: problem,
+                        timeframe: timeframe
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || `Server error: ${response.status}`);
+                }
+                
+                showResponse(data.response, responseDiv);
+                
+            } catch (error) {
+                console.error('API Error:', error);
+                showError(`Failed to diagnose issue: ${error.message}`, responseDiv);
+            } finally {
+                resetButton(button, 'Diagnose & Get Solutions');
+            }
+        }
+        
+        // Helper functions
+        function setLoadingState(button, responseDiv, message) {
+            button.disabled = true;
+            button.innerHTML = '<div class="loading-spinner"></div> Processing...';
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = `<div class="loading-spinner"></div> ${message}`;
+            responseDiv.className = 'response-box loading';
+        }
+        
+        function resetButton(button, originalText) {
+            button.disabled = false;
+            button.innerHTML = originalText;
+        }
+        
+        function showResponse(text, responseDiv) {
+            responseDiv.className = 'response-box';
+            responseDiv.innerHTML = formatResponse(text);
+        }
+        
+        function showError(message, responseDiv) {
+            responseDiv.style.display = 'block';
+            responseDiv.className = 'response-box';
+            responseDiv.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+        
+        function formatResponse(text) {
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n\n/g, '<br><br>')
+                .replace(/\n/g, '<br>');
+        }
+        
+        // Test connectivity on load
+        window.addEventListener('load', async function() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                if (response.ok) {
+                    console.log('✅ API connectivity confirmed');
+                }
+            } catch (error) {
+                console.warn('⚠️ API connectivity issue:', error.message);
+            }
+        });
+    </script>
+</body>
+</html>
