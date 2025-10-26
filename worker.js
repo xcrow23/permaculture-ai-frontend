@@ -149,7 +149,7 @@ async function callClaudeAPI(prompt, apiKey, maxTokens = 1000) {
       'anthropic-version': '2023-06-01'
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-3-sonnet-20240229',
       max_tokens: maxTokens,
       messages: [{
         role: 'user',
@@ -168,7 +168,13 @@ async function callClaudeAPI(prompt, apiKey, maxTokens = 1000) {
 
 // Helper functions (same as your original server.js)
 function createPermaculturePrompt(userQuestion, context = {}) {
-  const { location = 'Iowa, Zone 5', soilType = 'clay', spaceSize = 'small homestead' } = context;
+  const { 
+    location = 'Iowa, Zone 5', 
+    soilType = 'clay', 
+    spaceSize = 'small homestead',
+    currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+    season = 'Current season'
+  } = context;
   
   return `You are an expert permaculture consultant specializing in sustainable agriculture and homesteading. 
 
@@ -176,15 +182,17 @@ CONTEXT:
 - Location: ${location} (driftless region)
 - Soil type: ${soilType}
 - Space: ${spaceSize}
-- Current season: Early September
+- Current date: ${currentDate}
+- Season: ${season}
 
 USER QUESTION: ${userQuestion}
 
 Please provide practical, location-specific advice that considers:
-1. The local climate and growing conditions
+1. The local climate and growing conditions for this specific time of year
 2. Permaculture principles (care for earth, care for people, fair share)
 3. Sustainable and regenerative practices
 4. Integration with natural ecosystems
+5. Seasonal timing and appropriate tasks for ${season}
 
 Format your response with clear sections and actionable advice. Use emojis sparingly for readability.`;
 }

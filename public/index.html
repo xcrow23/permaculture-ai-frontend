@@ -88,6 +88,93 @@
             font-size: 20px;
             opacity: 0.7;
             animation: pulse 4s ease-in-out infinite;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .moon-phase:hover {
+            opacity: 1;
+            transform: scale(1.15);
+        }
+        
+        .moon-visual {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(90deg, #1a1a1a 50%, #e6edf3 50%);
+            position: relative;
+            box-shadow: 0 0 15px rgba(230, 237, 243, 0.3);
+            overflow: hidden;
+            transition: background 3s ease-in-out, box-shadow 3s ease-in-out;
+        }
+        
+        .moon-visual::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #1a1a1a;
+            transform-origin: right center;
+        }
+        
+        .moon-tooltip {
+            position: absolute;
+            top: 45px;
+            right: -10px;
+            background: rgba(22, 27, 34, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            min-width: 180px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .moon-phase:hover .moon-tooltip {
+            opacity: 1;
+        }
+        
+        .moon-tooltip-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent-green);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+        
+        .moon-tooltip-name {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            font-style: italic;
+            transition: all 0.3s ease;
+        }
+        
+        .moon-tooltip-detail {
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            transition: all 0.3s ease;
+        }
+        
+        .season-indicator {
+            position: absolute;
+            top: 45px;
+            right: 20px;
+            font-size: 12px;
+            opacity: 0.8;
+            color: var(--accent-green);
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }
         
         @keyframes pulse {
@@ -199,6 +286,24 @@
         
         .input-group {
             margin-bottom: 24px;
+            position: relative;
+        }
+        
+        .char-counter {
+            position: absolute;
+            bottom: -20px;
+            right: 0;
+            font-size: 11px;
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+        
+        .char-counter.warning {
+            color: #fbbf24;
+        }
+        
+        .char-counter.danger {
+            color: #ef4444;
         }
         
         .input-group label {
@@ -224,6 +329,18 @@
             color: var(--text-primary);
             transition: all 0.3s ease;
             font-family: 'Inter', sans-serif;
+        }
+        
+        /* Dark mode dropdown options */
+        .input-group select option {
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            padding: 10px;
+        }
+        
+        .input-group select option:hover,
+        .input-group select option:checked {
+            background-color: rgba(0, 255, 136, 0.15);
         }
         
         .input-group input:focus, 
@@ -288,6 +405,26 @@
             transform: none;
         }
         
+        .btn.loading {
+            position: relative;
+            color: transparent;
+        }
+        
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border: 2px solid rgba(10, 14, 20, 0.3);
+            border-top-color: rgba(10, 14, 20, 0.8);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
         .response-box {
             background: var(--bg-card);
             border: 1px solid rgba(0, 255, 136, 0.2);
@@ -299,6 +436,34 @@
             line-height: 1.7;
             font-size: 14px;
             box-shadow: inset 0 0 20px rgba(0, 255, 136, 0.05);
+            position: relative;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: var(--accent-green);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .copy-btn.copied {
+            background: rgba(0, 255, 136, 0.3);
+            border-color: var(--accent-green);
         }
         
         .response-box.loading {
@@ -414,6 +579,15 @@
             box-shadow: var(--glow);
         }
         
+        .quick-action.active {
+            border-color: var(--accent-green);
+            background: rgba(0, 255, 136, 0.1);
+        }
+        
+        .quick-action.active::after {
+            opacity: 1;
+        }
+        
         .quick-action .icon {
             font-size: 28px;
             margin-bottom: 10px;
@@ -490,8 +664,16 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="location-tag">Zone 5 • Iowa</div>
-            <div class="moon-phase">🌙</div>
+            <div class="location-tag" onclick="editLocation()" style="cursor: pointer;" title="Click to edit location">Zone 5 • Iowa</div>
+            <div class="moon-phase" id="moonPhase">
+                <div class="moon-visual" id="moonVisual"></div>
+                <div class="moon-tooltip">
+                    <div class="moon-tooltip-title" id="moonPhaseName">Waxing Gibbous</div>
+                    <div class="moon-tooltip-name" id="moonTraditionalName">Hunter's Moon</div>
+                    <div class="moon-tooltip-detail" id="moonDetail">71% illuminated</div>
+                </div>
+            </div>
+            <div class="season-indicator" id="seasonIndicator">🍂 Fall</div>
             <h1>PERMA AI</h1>
             <p>Regenerative Intelligence</p>
         </div>
@@ -507,28 +689,33 @@
             <!-- Ask AI Tab -->
             <div class="tab-panel active" id="ask">
                 <div class="quick-actions">
-                    <div class="quick-action" onclick="askQuickQuestion('companion planting')">
+                    <div class="quick-action" onclick="setQueryFocus('guild')">
                         <div class="icon">🤝</div>
                         <div class="label">Guild</div>
                     </div>
-                    <div class="quick-action" onclick="askQuickQuestion('soil improvement')">
+                    <div class="quick-action" onclick="setQueryFocus('soil')">
                         <div class="icon">🌍</div>
                         <div class="label">Soil</div>
                     </div>
-                    <div class="quick-action" onclick="askQuickQuestion('pest control')">
+                    <div class="quick-action" onclick="setQueryFocus('defense')">
                         <div class="icon">🛡️</div>
                         <div class="label">Defense</div>
                     </div>
-                    <div class="quick-action" onclick="askQuickQuestion('seasonal tasks')">
+                    <div class="quick-action" onclick="setQueryFocus('cycles')">
                         <div class="icon">🌙</div>
                         <div class="label">Cycles</div>
                     </div>
                 </div>
                 
                 <div class="input-group">
-                    <label>Query the Intelligence</label>
-                    <textarea id="userQuestion" placeholder="What wisdom do you seek from the land?" rows="3"></textarea>
+                    <label id="queryLabel">Query the Intelligence</label>
+                    <textarea id="userQuestion" placeholder="What wisdom do you seek from the land?" rows="3" maxlength="500" oninput="updateCharCount(this, 'charCount1')"></textarea>
+                    <div class="char-counter" id="charCount1">0 / 500</div>
                 </div>
+                
+                <button class="btn" id="clearFocusBtn" onclick="clearQueryFocus()" style="display:none; margin-bottom:15px; background: rgba(255,255,255,0.1); padding: 10px;">
+                    Clear Focus
+                </button>
                 
                 <button class="btn" onclick="askAI()">Channel Response</button>
                 
@@ -563,7 +750,8 @@
                 
                 <div class="input-group">
                     <label>Primary Intentions</label>
-                    <textarea id="goals" placeholder="Food sovereignty, habitat restoration, carbon sequestration, water retention..." rows="3"></textarea>
+                    <textarea id="goals" placeholder="Food sovereignty, habitat restoration, carbon sequestration, water retention..." rows="3" maxlength="500" oninput="updateCharCount(this, 'charCount2')"></textarea>
+                    <div class="char-counter" id="charCount2">0 / 500</div>
                 </div>
                 
                 <button class="btn" onclick="generatePlan()">Generate Blueprint</button>
@@ -584,7 +772,8 @@
                 
                 <div class="input-group">
                     <label>Observed Symptoms</label>
-                    <textarea id="problemDescription" placeholder="Yellowing leaves, wilting, spots, stunted growth..." rows="4"></textarea>
+                    <textarea id="problemDescription" placeholder="Yellowing leaves, wilting, spots, stunted growth..." rows="4" maxlength="500" oninput="updateCharCount(this, 'charCount3')"></textarea>
+                    <div class="char-counter" id="charCount3">0 / 500</div>
                 </div>
                 
                 <div class="input-group">
@@ -641,6 +830,262 @@
             ? 'http://localhost:3001/api'
             : 'https://permaculture-ai-worker.dreadcrownest.workers.dev/api';
         
+        // Get current season and date context
+        function getCurrentSeasonContext() {
+            const now = new Date();
+            const month = now.getMonth(); // 0-11
+            const day = now.getDate();
+            
+            // Determine season (Northern Hemisphere)
+            let season;
+            if (month >= 2 && month <= 4) season = 'Spring';
+            else if (month >= 5 && month <= 7) season = 'Summer';
+            else if (month >= 8 && month <= 10) season = 'Fall';
+            else season = 'Winter';
+            
+            // Get month names
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                                'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            // More specific timing within season
+            let seasonPhase;
+            if (day <= 10) seasonPhase = 'Early';
+            else if (day <= 20) seasonPhase = 'Mid';
+            else seasonPhase = 'Late';
+            
+            return {
+                season: season,
+                month: monthNames[month],
+                monthIndex: month,
+                seasonPhase: seasonPhase,
+                fullContext: `${seasonPhase} ${monthNames[month]} (${season})`,
+                date: now.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                })
+            };
+        }
+        
+        // Moon phase calculation
+        function getMoonPhase(date = new Date()) {
+            // Known new moon date (Jan 11, 2024)
+            const knownNewMoon = new Date('2024-01-11T11:57:00Z');
+            const lunarCycle = 29.53058867; // days
+            
+            // Calculate days since known new moon
+            const daysSinceNew = (date - knownNewMoon) / (1000 * 60 * 60 * 24);
+            const currentPhase = ((daysSinceNew % lunarCycle) + lunarCycle) % lunarCycle;
+            
+            // Calculate illumination percentage
+            const illumination = Math.round((1 - Math.cos((currentPhase / lunarCycle) * 2 * Math.PI)) * 50);
+            
+            // Determine phase name
+            let phaseName, phaseEmoji;
+            if (currentPhase < 1.84566) {
+                phaseName = 'New Moon';
+                phaseEmoji = '🌑';
+            } else if (currentPhase < 7.38265) {
+                phaseName = 'Waxing Crescent';
+                phaseEmoji = '🌒';
+            } else if (currentPhase < 9.22831) {
+                phaseName = 'First Quarter';
+                phaseEmoji = '🌓';
+            } else if (currentPhase < 14.76529) {
+                phaseName = 'Waxing Gibbous';
+                phaseEmoji = '🌔';
+            } else if (currentPhase < 16.61096) {
+                phaseName = 'Full Moon';
+                phaseEmoji = '🌕';
+            } else if (currentPhase < 22.14794) {
+                phaseName = 'Waning Gibbous';
+                phaseEmoji = '🌖';
+            } else if (currentPhase < 23.99360) {
+                phaseName = 'Last Quarter';
+                phaseEmoji = '🌗';
+            } else {
+                phaseName = 'Waning Crescent';
+                phaseEmoji = '🌘';
+            }
+            
+            return {
+                phaseName,
+                phaseEmoji,
+                illumination,
+                dayInCycle: currentPhase
+            };
+        }
+        
+        // Traditional moon names (North American indigenous & colonial traditions)
+        function getMoonName(month) {
+            const moonNames = {
+                0: { name: "Wolf Moon", meaning: "Wolves howl in midwinter" },
+                1: { name: "Snow Moon", meaning: "Heaviest snowfall" },
+                2: { name: "Worm Moon", meaning: "Earth softens, earthworms appear" },
+                3: { name: "Pink Moon", meaning: "Wild ground phlox blooms" },
+                4: { name: "Flower Moon", meaning: "Flowers spring forth abundantly" },
+                5: { name: "Strawberry Moon", meaning: "Strawberry harvesting season" },
+                6: { name: "Buck Moon", meaning: "New antlers emerge on bucks" },
+                7: { name: "Sturgeon Moon", meaning: "Sturgeon most readily caught" },
+                8: { name: "Harvest Moon", meaning: "Time to gather ripened crops" },
+                9: { name: "Hunter's Moon", meaning: "Time to hunt for winter stores" },
+                10: { name: "Beaver Moon", meaning: "Beavers prepare for winter" },
+                11: { name: "Cold Moon", meaning: "Winter cold fastens its grip" }
+            };
+            return moonNames[month];
+        }
+        
+        // Render moon visual
+        function renderMoonPhase() {
+            const now = new Date();
+            const moonData = getMoonPhase(now);
+            const seasonInfo = getCurrentSeasonContext();
+            const traditionalName = getMoonName(seasonInfo.monthIndex);
+            
+            // Update visual moon
+            const moonVisual = document.getElementById('moonVisual');
+            const illuminationPercent = moonData.illumination;
+            
+            // Calculate shadow position for realistic moon rendering
+            // This creates the waxing/waning effect
+            let shadowPosition;
+            if (moonData.dayInCycle < 14.765) {
+                // Waxing (shadow on left, moving right)
+                shadowPosition = 50 - (illuminationPercent / 2);
+            } else {
+                // Waning (shadow on right, moving left)
+                shadowPosition = -50 + (illuminationPercent / 2);
+            }
+            
+            moonVisual.style.background = `
+                radial-gradient(circle at ${50 + shadowPosition}% 50%, 
+                    #e6edf3 0%, 
+                    #e6edf3 ${illuminationPercent}%, 
+                    #1a1a1a ${illuminationPercent}%, 
+                    #1a1a1a 100%)
+            `;
+            
+            // Update tooltip
+            document.getElementById('moonPhaseName').textContent = moonData.phaseName;
+            document.getElementById('moonTraditionalName').textContent = traditionalName.name;
+            document.getElementById('moonDetail').textContent = `${illuminationPercent}% illuminated • ${traditionalName.meaning}`;
+        }
+        
+        // Query focus management
+        let currentFocus = null;
+        
+        const focusConfig = {
+            guild: {
+                label: 'Query the Intelligence • Guild Focus',
+                placeholder: 'What plant guilds are you considering? (e.g., tomatoes, squash, beans)',
+                context: 'Focus specifically on companion planting guilds and plant partnerships for'
+            },
+            soil: {
+                label: 'Query the Intelligence • Soil Focus',
+                placeholder: 'What soil concerns do you have? (e.g., clay amendment, pH balance, drainage)',
+                context: 'Focus specifically on soil health, improvement, and management for'
+            },
+            defense: {
+                label: 'Query the Intelligence • Defense Focus',
+                placeholder: 'What pest or disease issues are you facing? (e.g., aphids, blight, slugs)',
+                context: 'Focus specifically on organic pest management and plant disease prevention for'
+            },
+            cycles: {
+                label: 'Query the Intelligence • Cycles Focus',
+                placeholder: 'What seasonal guidance do you need? (e.g., planting times, harvest, preparation)',
+                context: 'Focus specifically on seasonal cycles, timing, and appropriate tasks for'
+            }
+        };
+        
+        function setQueryFocus(focus) {
+            currentFocus = focus;
+            const config = focusConfig[focus];
+            
+            // Update label and placeholder
+            document.getElementById('queryLabel').textContent = config.label;
+            document.getElementById('userQuestion').placeholder = config.placeholder;
+            
+            // Show clear focus button
+            document.getElementById('clearFocusBtn').style.display = 'block';
+            
+            // Visual feedback - highlight active button
+            document.querySelectorAll('.quick-action').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.quick-action').classList.add('active');
+            
+            // Focus the textarea
+            document.getElementById('userQuestion').focus();
+        }
+        
+        function clearQueryFocus() {
+            currentFocus = null;
+            
+            // Reset label and placeholder
+            document.getElementById('queryLabel').textContent = 'Query the Intelligence';
+            document.getElementById('userQuestion').placeholder = 'What wisdom do you seek from the land?';
+            
+            // Hide clear focus button
+            document.getElementById('clearFocusBtn').style.display = 'none';
+            
+            // Remove active state from all buttons
+            document.querySelectorAll('.quick-action').forEach(btn => btn.classList.remove('active'));
+        }
+        
+        // Location editing
+        function editLocation() {
+            const newLocation = prompt('Enter your location (e.g., "Iowa", "California", "Ontario"):', 'Iowa');
+            const newZone = prompt('Enter your USDA Hardiness Zone (1-13):', '5');
+            
+            if (newLocation && newZone) {
+                document.querySelector('.location-tag').textContent = `Zone ${newZone} • ${newLocation}`;
+                // Store in localStorage for persistence
+                localStorage.setItem('userLocation', newLocation);
+                localStorage.setItem('userZone', newZone);
+            }
+        }
+        
+        // Character counter
+        function updateCharCount(textarea, counterId) {
+            const counter = document.getElementById(counterId);
+            const current = textarea.value.length;
+            const max = textarea.maxLength;
+            
+            counter.textContent = `${current} / ${max}`;
+            
+            // Color coding
+            counter.classList.remove('warning', 'danger');
+            if (current > max * 0.9) {
+                counter.classList.add('danger');
+            } else if (current > max * 0.75) {
+                counter.classList.add('warning');
+            }
+        }
+        
+        // Load saved location on page load
+        window.addEventListener('load', function() {
+            const savedLocation = localStorage.getItem('userLocation');
+            const savedZone = localStorage.getItem('userZone');
+            
+            if (savedLocation && savedZone) {
+                document.querySelector('.location-tag').textContent = `Zone ${savedZone} • ${savedLocation}`;
+            }
+            
+            // Set current season
+            const seasonInfo = getCurrentSeasonContext();
+            const seasonEmoji = {
+                'Spring': '🌱',
+                'Summer': '☀️',
+                'Fall': '🍂',
+                'Winter': '❄️'
+            };
+            document.getElementById('seasonIndicator').textContent = `${seasonEmoji[seasonInfo.season]} ${seasonInfo.season}`;
+            
+            // Render accurate moon phase
+            renderMoonPhase();
+            
+            // Update moon phase every hour
+            setInterval(renderMoonPhase, 3600000);
+        });
+        
         // Tab switching
         document.querySelectorAll('.nav-tab').forEach(tab => {
             tab.addEventListener('click', function() {
@@ -671,6 +1116,8 @@
             
             setLoadingState(button, responseDiv, 'Consulting the intelligence...');
             
+            const seasonInfo = getCurrentSeasonContext();
+            
             try {
                 const response = await fetch(`${API_BASE}/ask`, {
                     method: 'POST',
@@ -682,7 +1129,9 @@
                         context: {
                             location: 'Iowa, Zone 5',
                             soilType: 'clay',
-                            spaceSize: 'small homestead'
+                            spaceSize: 'small homestead',
+                            currentDate: seasonInfo.date,
+                            season: seasonInfo.fullContext
                         }
                     })
                 });
@@ -787,7 +1236,8 @@
         // Helper functions
         function setLoadingState(button, responseDiv, message) {
             button.disabled = true;
-            button.innerHTML = '<div class="loading-spinner"></div> Processing...';
+            button.classList.add('loading');
+            button.setAttribute('data-original-text', button.textContent);
             responseDiv.style.display = 'block';
             responseDiv.innerHTML = `<div class="loading-spinner"></div> ${message}`;
             responseDiv.className = 'response-box loading';
@@ -795,18 +1245,73 @@
         
         function resetButton(button, originalText) {
             button.disabled = false;
-            button.innerHTML = originalText;
+            button.classList.remove('loading');
+            const savedText = button.getAttribute('data-original-text');
+            button.innerHTML = savedText || originalText;
         }
         
         function showResponse(text, responseDiv) {
             responseDiv.className = 'response-box';
-            responseDiv.innerHTML = formatResponse(text);
+            const formattedText = formatResponse(text);
+            responseDiv.innerHTML = `
+                <button class="copy-btn" onclick="copyResponse(this, '${text.replace(/'/g, "\\'")}')">
+                    📋 Copy
+                </button>
+                ${formattedText}
+            `;
+        }
+        
+        function copyResponse(button, text) {
+            // Use modern clipboard API
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = '✓ Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = '📋 Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                button.textContent = '✓ Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = '📋 Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
         }
         
         function showError(message, responseDiv) {
             responseDiv.style.display = 'block';
             responseDiv.className = 'response-box';
-            responseDiv.innerHTML = `<div class="error-message">${message}</div>`;
+            
+            // Enhanced error messages with helpful context
+            let errorHTML = `<div class="error-message">⚠️ <strong>Connection Issue</strong><br>${message}`;
+            
+            // Add helpful suggestions based on error type
+            if (message.includes('Failed to fetch') || message.includes('Network')) {
+                errorHTML += `<br><br><small>💡 Check your internet connection and try again.</small>`;
+            } else if (message.includes('500') || message.includes('System error')) {
+                errorHTML += `<br><br><small>💡 Our systems are experiencing issues. Please try again in a moment.</small>`;
+            } else if (message.includes('429') || message.includes('rate limit')) {
+                errorHTML += `<br><br><small>💡 Too many requests. Please wait a moment before trying again.</small>`;
+            } else if (message.includes('401') || message.includes('403')) {
+                errorHTML += `<br><br><small>💡 Authentication issue. Please contact support.</small>`;
+            }
+            
+            errorHTML += `</div>`;
+            responseDiv.innerHTML = errorHTML;
         }
         
         function formatResponse(text) {
@@ -827,14 +1332,6 @@
                 console.warn('⚠️ Connection unstable:', error.message);
             }
         });
-
-        // Moon phase animation
-        const moonPhases = ['🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘'];
-        let currentPhase = 4;
-        setInterval(() => {
-            document.querySelector('.moon-phase').textContent = moonPhases[currentPhase];
-            currentPhase = (currentPhase + 1) % moonPhases.length;
-        }, 3000);
     </script>
 </body>
 </html>
