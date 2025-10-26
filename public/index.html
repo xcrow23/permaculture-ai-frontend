@@ -1032,14 +1032,20 @@
         
         // Location editing
         function editLocation() {
-            const newLocation = prompt('Enter your location (e.g., "Iowa", "California", "Ontario"):', 'Iowa');
-            const newZone = prompt('Enter your USDA Hardiness Zone (1-13):', '5');
+            const newLocation = prompt('Enter your location (e.g., "Iowa", "California", "Ontario"):', localStorage.getItem('userLocation') || 'Iowa');
+            const newZone = prompt('Enter your USDA Hardiness Zone (1-13):', localStorage.getItem('userZone') || '5');
             
             if (newLocation && newZone) {
-                document.querySelector('.location-tag').textContent = `Zone ${newZone} • ${newLocation}`;
-                // Store in localStorage for persistence
+                // Save to localStorage
                 localStorage.setItem('userLocation', newLocation);
                 localStorage.setItem('userZone', newZone);
+                
+                // Update UI
+                document.querySelector('.location-tag').textContent = `Zone ${newZone} • ${newLocation}`;
+                
+                // Debug confirmation
+                console.log('✅ Location saved:', newLocation, 'Zone:', newZone);
+                console.log('📦 localStorage check:', localStorage.getItem('userLocation'), localStorage.getItem('userZone'));
             }
         }
         
