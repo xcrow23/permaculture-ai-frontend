@@ -71,6 +71,7 @@ async function handleAsk(request, env, corsHeaders) {
       });
     }
 
+    // Pass context properly - it already has all the fields we need
     const prompt = createPermaculturePrompt(question, context);
     const response = await callClaudeAPI(prompt, env.ANTHROPIC_API_KEY);
     
@@ -94,8 +95,8 @@ async function handleAsk(request, env, corsHeaders) {
 
 async function handlePlan(request, env, corsHeaders) {
   try {
-    const { spaceSize, soilType, goals } = await request.json();
-    const prompt = createPlanningPrompt(spaceSize, soilType, goals);
+    const { spaceSize, soilType, goals, location } = await request.json();
+    const prompt = createPlanningPrompt(spaceSize, soilType, goals, location);
     const response = await callClaudeAPI(prompt, env.ANTHROPIC_API_KEY, 1200);
     
     return new Response(JSON.stringify({ 
@@ -118,8 +119,8 @@ async function handlePlan(request, env, corsHeaders) {
 
 async function handleDiagnose(request, env, corsHeaders) {
   try {
-    const { plant, problem, timeframe } = await request.json();
-    const prompt = createDiagnosisPrompt(plant, problem, timeframe);
+    const { plant, problem, timeframe, location } = await request.json();
+    const prompt = createDiagnosisPrompt(plant, problem, timeframe, location);
     const response = await callClaudeAPI(prompt, env.ANTHROPIC_API_KEY);
     
     return new Response(JSON.stringify({ 
@@ -176,10 +177,14 @@ function createPermaculturePrompt(userQuestion, context = {}) {
     season = 'Current season'
   } = context;
   
+  // Debug logging
+  console.log('🔍 Worker received location:', location);
+  console.log('📦 Full context:', JSON.stringify(context));
+  
   return `You are an expert permaculture consultant specializing in sustainable agriculture and homesteading. 
 
 CONTEXT:
-- Location: ${location} (driftless region)
+- Location: ${location}
 - Soil type: ${soilType}
 - Space: ${spaceSize}
 - Current date: ${currentDate}
@@ -197,32 +202,32 @@ Please provide practical, location-specific advice that considers:
 Format your response with clear sections and actionable advice. Use emojis sparingly for readability.`;
 }
 
-function createPlanningPrompt(spaceSize, soilType, goals) {
+function createPlanningPrompt(spaceSize, soilType, goals, location = 'Iowa, Zone 5') {
   return `You are a permaculture design consultant. Create a detailed plan for:
 
 SITE DETAILS:
 - Space: ${spaceSize}
 - Soil: ${soilType}
-- Location: Iowa, Zone 5 (driftless region)
+- Location: ${location} (driftless region)
 - Goals: ${goals}
 
 Please provide:
 1. Zone-based design layout
 2. Recommended plant guilds for the soil/climate
 3. Implementation timeline
-4. Specific recommendations for clay soil management
+4. Specific recommendations for soil management
 5. Integration opportunities for future sensor/automation systems
 
 Focus on practical, achievable steps for a homesteader with limited initial budget.`;
 }
 
-function createDiagnosisPrompt(plant, problem, timeframe) {
+function createDiagnosisPrompt(plant, problem, timeframe, location = 'Iowa, Zone 5') {
   return `You are a plant pathologist and permaculture expert. Diagnose this issue:
 
 PLANT: ${plant}
 SYMPTOMS: ${problem}
 TIMEFRAME: ${timeframe}
-LOCATION: Iowa, Zone 5, clay soil
+LOCATION: ${location}
 
 Please provide:
 1. Most likely causes (considering local conditions)
