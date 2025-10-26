@@ -429,7 +429,7 @@
             background: var(--bg-card);
             border: 1px solid rgba(0, 255, 136, 0.2);
             border-radius: 12px;
-            padding: 20px;
+            padding: 45px 20px 20px 20px;
             margin-top: 24px;
             min-height: 120px;
             white-space: pre-wrap;
@@ -978,22 +978,22 @@
             guild: {
                 label: 'Query the Intelligence • Guild Focus',
                 placeholder: 'What plant guilds are you considering? (e.g., tomatoes, squash, beans)',
-                context: 'Focus specifically on companion planting guilds and plant partnerships for'
+                context: 'You must focus ONLY on companion planting guilds and plant partnerships. Do not provide general information. Question:'
             },
             soil: {
                 label: 'Query the Intelligence • Soil Focus',
                 placeholder: 'What soil concerns do you have? (e.g., clay amendment, pH balance, drainage)',
-                context: 'Focus specifically on soil health, improvement, and management for'
+                context: 'You must focus ONLY on soil health, improvement, and management. Do not provide general information. Question:'
             },
             defense: {
                 label: 'Query the Intelligence • Defense Focus',
                 placeholder: 'What pest or disease issues are you facing? (e.g., aphids, blight, slugs)',
-                context: 'Focus specifically on organic pest management and plant disease prevention for'
+                context: 'You must focus ONLY on organic pest management and plant disease prevention. Do not provide general permaculture information. Question:'
             },
             cycles: {
                 label: 'Query the Intelligence • Cycles Focus',
                 placeholder: 'What seasonal guidance do you need? (e.g., planting times, harvest, preparation)',
-                context: 'Focus specifically on seasonal cycles, timing, and appropriate tasks for'
+                context: 'You must focus ONLY on seasonal cycles, timing, and appropriate seasonal tasks. Do not provide general information. Question:'
             }
         };
         
@@ -1159,6 +1159,9 @@
             const responseDiv = document.getElementById('planResponse');
             const button = event.target;
             
+            const userLocation = localStorage.getItem('userLocation') || 'Iowa';
+            const userZone = localStorage.getItem('userZone') || '5';
+            
             setLoadingState(button, responseDiv, 'Synthesizing regenerative design...');
             
             try {
@@ -1170,7 +1173,8 @@
                     body: JSON.stringify({
                         spaceSize: space,
                         soilType: soil,
-                        goals: goals || 'Holistic regenerative homestead'
+                        goals: goals || 'Holistic regenerative homestead',
+                        location: `${userLocation}, Zone ${userZone}`
                     })
                 });
                 
@@ -1197,6 +1201,9 @@
             const responseDiv = document.getElementById('diagnoseResponse');
             const button = event.target;
             
+            const userLocation = localStorage.getItem('userLocation') || 'Iowa';
+            const userZone = localStorage.getItem('userZone') || '5';
+            
             if (!plant.trim() || !problem.trim()) {
                 showError('Diagnostic requires species and symptom data', responseDiv);
                 return;
@@ -1213,7 +1220,8 @@
                     body: JSON.stringify({
                         plant: plant,
                         problem: problem,
-                        timeframe: timeframe
+                        timeframe: timeframe,
+                        location: `${userLocation}, Zone ${userZone}`
                     })
                 });
                 
@@ -1253,43 +1261,85 @@
         function showResponse(text, responseDiv) {
             responseDiv.className = 'response-box';
             const formattedText = formatResponse(text);
+            
+            // Store the raw text for copying
+            responseDiv.setAttribute('data-raw-text', text);
+            
             responseDiv.innerHTML = `
-                <button class="copy-btn" onclick="copyResponse(this, '${text.replace(/'/g, "\\'")}')">
+                <button class="copy-btn" onclick="copyResponseText(this.parentElement)">
                     📋 Copy
                 </button>
-                ${formattedText}
+                <div class="response-content">${formattedText}</div>
             `;
         }
         
-        function copyResponse(button, text) {
-            // Use modern clipboard API
-            navigator.clipboard.writeText(text).then(() => {
-                button.textContent = '✓ Copied!';
-                button.classList.add('copied');
-                
-                setTimeout(() => {
-                    button.textContent = '📋 Copy';
-                    button.classList.remove('copied');
-                }, 2000);
-            }).catch(err => {
+        function copyResponseText(responseDiv) {
+            const text = responseDiv.getAttribute('data-raw-text');
+            const button = responseDiv.querySelector('.copy-btn');
+            
+            if (!text) {
+                console.error('No text to copy');
+                return;
+            }
+            
+            // Modern clipboard API (works in all recent browsers)
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(() => {
+                        button.textContent = '✓ Copied!';
+                        button.classList.add('copied');
+                        
+                        setTimeout(() => {
+                            button.textContent = '📋 Copy';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Clipboard error:', err);
+                        // Try fallback
+                        fallbackCopy(text, button);
+                    });
+            } else {
                 // Fallback for older browsers
+                fallbackCopy(text, button);
+            }
+        }
+        
+        function fallbackCopy(text, button) {
+            try {
                 const textArea = document.createElement('textarea');
                 textArea.value = text;
                 textArea.style.position = 'fixed';
-                textArea.style.opacity = '0';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '-999999px';
                 document.body.appendChild(textArea);
+                textArea.focus();
                 textArea.select();
-                document.execCommand('copy');
+                
+                const successful = document.execCommand('copy');
                 document.body.removeChild(textArea);
                 
-                button.textContent = '✓ Copied!';
-                button.classList.add('copied');
-                
+                if (successful) {
+                    button.textContent = '✓ Copied!';
+                    button.classList.add('copied');
+                    
+                    setTimeout(() => {
+                        button.textContent = '📋 Copy';
+                        button.classList.remove('copied');
+                    }, 2000);
+                } else {
+                    button.textContent = '✗ Failed';
+                    setTimeout(() => {
+                        button.textContent = '📋 Copy';
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                button.textContent = '✗ Failed';
                 setTimeout(() => {
                     button.textContent = '📋 Copy';
-                    button.classList.remove('copied');
                 }, 2000);
-            });
+            }
         }
         
         function showError(message, responseDiv) {
