@@ -1113,53 +1113,64 @@
             askAI();
         }
         
-        async function askAI() {
-            const question = document.getElementById('userQuestion').value;
-            const responseDiv = document.getElementById('aiResponse');
-            const button = event.target;
-            
-            if (!question.trim()) {
-                showError('Channel requires input query', responseDiv);
-                return;
-            }
-            
-            setLoadingState(button, responseDiv, 'Consulting the intelligence...');
-            
-            const seasonInfo = getCurrentSeasonContext();
-            
-            try {
-                const response = await fetch(`${API_BASE}/ask`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        question: question,
-                        context: {
-                            location: 'Iowa, Zone 5',
-                            soilType: 'clay',
-                            spaceSize: 'small homestead',
-                            currentDate: seasonInfo.date,
-                            season: seasonInfo.fullContext
-                        }
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || `System error: ${response.status}`);
+     async function askAI() {
+    const question = document.getElementById('userQuestion').value;
+    const responseDiv = document.getElementById('aiResponse');
+    const button = event.target;
+    
+    if (!question.trim()) {
+        showError('Channel requires input query', responseDiv);
+        return;
+    }
+    
+    setLoadingState(button, responseDiv, 'Consulting the intelligence...');
+    
+    const seasonInfo = getCurrentSeasonContext();
+    const userLocation = localStorage.getItem('userLocation') || 'Iowa';
+    const userZone = localStorage.getItem('userZone') || '5';
+    
+    // Debug logging
+    console.log('📍 Sending location:', `${userLocation}, Zone ${userZone}`);
+    
+    // Build question with focus context if active
+    let finalQuestion = question;
+    if (currentFocus && focusConfig[currentFocus]) {
+        finalQuestion = `${focusConfig[currentFocus].context} ${question}`;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/ask`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                question: finalQuestion,
+                context: {
+                    location: `${userLocation}, Zone ${userZone}`,
+                    soilType: 'clay',
+                    spaceSize: 'small homestead',
+                    currentDate: seasonInfo.date,
+                    season: seasonInfo.fullContext
                 }
-                
-                showResponse(data.response, responseDiv);
-                
-            } catch (error) {
-                console.error('Transmission error:', error);
-                showError(`Connection disrupted: ${error.message}`, responseDiv);
-            } finally {
-                resetButton(button, 'Channel Response');
-            }
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || `System error: ${response.status}`);
         }
+        
+        showResponse(data.response, responseDiv);
+        
+    } catch (error) {
+        console.error('Transmission error:', error);
+        showError(`Connection disrupted: ${error.message}`, responseDiv);
+    } finally {
+        resetButton(button, 'Channel Response');
+    }
+}
         
         async function generatePlan() {
             const space = document.getElementById('spaceSize').value;
