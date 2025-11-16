@@ -1,4 +1,168 @@
 // worker.js - Cloudflare Worker for Permaculture AI API
+
+// ============================================================================
+// SUBJECT-MATTER SAFEGUARDS
+// ============================================================================
+
+/**
+ * Validates if a query is related to permaculture, ecology, botany, or animal husbandry
+ * Takes a moderate approach: lenient on edge cases, friendly tone
+ *
+ * Scope includes:
+ * - Permaculture & regenerative agriculture
+ * - Ecology & ecosystems
+ * - Botany & plant science
+ * - Animal husbandry & integrated livestock
+ * - Gardening & homesteading in permaculture context
+ * - Herbalism & medicinal plants
+ * - Sustainability & environmental topics related to land management
+ */
+function validateTopicRelevance(input) {
+  // Comprehensive keyword list for in-scope topics
+  const inScopeKeywords = [
+    // Permaculture core
+    'permaculture', 'regenerative', 'sustainable', 'homestead', 'homesteading',
+
+    // Plants & gardening
+    'plant', 'garden', 'garden', 'grow', 'growing', 'cultivat', 'harvest', 'seed',
+    'soil', 'compost', 'mulch', 'leaf', 'root', 'flower', 'fruit', 'vegetable',
+    'tree', 'shrub', 'perennial', 'annual', 'weed', 'herb',
+
+    // Ecology & environment
+    'ecolog', 'ecosystem', 'biodiversity', 'wildlife', 'pollinator', 'insect',
+    'bird', 'native', 'invasive', 'habitat', 'conservation', 'restoration',
+    'carbon', 'nitrogen', 'phosphorus', 'nutrient', 'cycle',
+
+    // Botany & science
+    'botany', 'botanical', 'species', 'cultivar', 'genus', 'photosynthesis',
+    'transpiration', 'osmosis', 'chlorophyll', 'phenotype',
+
+    // Water & soil management
+    'water', 'irrigation', 'swale', 'pond', 'rainwater', 'drainage', 'hydrology',
+    'soil', 'tilth', 'texture', 'clay', 'sand', 'silt', 'ph', 'acidic', 'alkaline',
+    'microbe', 'bacteria', 'fungi', 'mycorrhiz',
+
+    // Animal husbandry
+    'animal', 'livestock', 'cattle', 'sheep', 'goat', 'chicken', 'bee', 'apiary',
+    'composting', 'manure', 'pasture', 'grazing', 'rotation',
+
+    // Design & planning
+    'design', 'plan', 'layout', 'zone', 'guild', 'polycultur', 'intercrop',
+    'rotation', 'succession', 'yield', 'productivity',
+
+    // Seasonal & climate
+    'season', 'seasonal', 'climate', 'hardiness', 'frost', 'freeze', 'microclimate',
+    'phenophase', 'moon phase', 'lunar',
+
+    // Herbalism & medicine
+    'medicinal', 'herbal', 'tincture', 'infusion', 'remedy', 'healing',
+
+    // Permaculture ethics
+    'ethics', 'earthcare', 'peoplecare', 'fairshare', 'principle'
+  ];
+
+  // Keywords that suggest off-topic queries
+  const offTopicKeywords = [
+    'code', 'program', 'function', 'variable', 'debug', 'error',
+    'homework', 'essay', 'write', 'poem', 'story', 'fiction',
+    'homework', 'quiz', 'exam',
+    'politics', 'religion', 'conspiracy',
+    'hack', 'crack', 'exploit', 'malware',
+    'investment', 'crypto', 'stock', 'trading',
+    'medical', 'doctor', 'disease', 'prescription', 'drug',
+    'repair', 'fix', 'mechanical',
+    'financial', 'tax', 'loan', 'mortgage'
+  ];
+
+  const lowerInput = input.toLowerCase();
+
+  // Check for definite off-topic keywords
+  const hasOffTopicKeyword = offTopicKeywords.some(keyword => lowerInput.includes(keyword));
+
+  // Check for in-scope keywords
+  const hasInScopeKeyword = inScopeKeywords.some(keyword => lowerInput.includes(keyword));
+
+  // If query contains off-topic keywords AND no in-scope keywords, flag it
+  if (hasOffTopicKeyword && !hasInScopeKeyword) {
+    return {
+      isRelevant: false,
+      reason: 'off-topic'
+    };
+  }
+
+  // If very short and vague, require more context
+  if (lowerInput.length < 10 && !hasInScopeKeyword) {
+    return {
+      isRelevant: false,
+      reason: 'too-vague'
+    };
+  }
+
+  // Default to allowing (moderate/lenient approach)
+  return {
+    isRelevant: true,
+    reason: 'in-scope'
+  };
+}
+
+/**
+ * Creates a friendly rejection message when query is off-topic
+ */
+function createRejectionMessage(validationResult) {
+  const suggestions = [
+    '• Garden design and planning',
+    '• Companion planting and plant guilds',
+    '• Soil health and regeneration',
+    '• Permaculture principles and ethics',
+    '• Seasonal farming and moon cycles',
+    '• Ecological systems and biodiversity',
+    '• Plant diagnostics and herbalism',
+    '• Water management and swales',
+    '• Animal integration and husbandry'
+  ];
+
+  let message = '🌱 I\'m specialized in permaculture and regenerative agriculture! ';
+
+  if (validationResult.reason === 'too-vague') {
+    message += 'Could you provide more details about your gardening or permaculture question?\n\n';
+  } else {
+    message += 'That\'s outside my area of expertise, but I\'d be happy to help with:\n\n';
+  }
+
+  message += suggestions.join('\n') + '\n\n';
+  message += 'How can I help with your permaculture or gardening needs?';
+
+  return message;
+}
+
+/**
+ * Logs off-topic queries for analysis and model improvement
+ */
+async function logOffTopicQuery(query, endpoint, env) {
+  try {
+    // Log to console for immediate visibility
+    console.log(`[OFF-TOPIC] [${endpoint}] Query: "${query}"`);
+
+    // Prepare structured log entry
+    const logEntry = {
+      timestamp: new Date().toISOString(),
+      endpoint: endpoint,
+      query: query,
+      queryLength: query.length,
+      type: 'off-topic-attempt'
+    };
+
+    // Note: In production, this could be sent to:
+    // - Cloudflare Analytics/Logpush
+    // - External analytics service
+    // - Database for later analysis
+    // For now, console logging is sufficient for development/analysis
+    console.log(JSON.stringify(logEntry));
+  } catch (error) {
+    console.error('Error logging off-topic query:', error);
+  }
+}
+
 export default {
   async fetch(request, env, ctx) {
     // Handle CORS preflight requests
@@ -63,7 +227,7 @@ export default {
 async function handleAsk(request, env, corsHeaders) {
   try {
     const { question, context } = await request.json();
-    
+
     if (!question) {
       return new Response(JSON.stringify({ error: 'Question is required' }), {
         status: 400,
@@ -71,21 +235,36 @@ async function handleAsk(request, env, corsHeaders) {
       });
     }
 
+    // SAFEGUARD: Validate topic relevance
+    const validation = validateTopicRelevance(question);
+    if (!validation.isRelevant) {
+      await logOffTopicQuery(question, '/api/ask', env);
+      return new Response(JSON.stringify({
+        response: createRejectionMessage(validation),
+        isOffTopic: true,
+        validationReason: validation.reason
+      }), {
+        status: 200, // Return 200 but flag as off-topic
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+
     // Pass context properly - it already has all the fields we need
     const prompt = createPermaculturePrompt(question, context);
     const response = await callClaudeAPI(prompt, env.ANTHROPIC_API_KEY);
-    
-    return new Response(JSON.stringify({ 
+
+    return new Response(JSON.stringify({
       response: response.content[0].text,
-      usage: response.usage 
+      usage: response.usage,
+      isOffTopic: false
     }), {
       headers: { 'Content-Type': 'application/json', ...corsHeaders }
     });
 
   } catch (error) {
-    return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({
       error: 'Failed to get AI response',
-      details: error.message 
+      details: error.message
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', ...corsHeaders }
@@ -96,20 +275,36 @@ async function handleAsk(request, env, corsHeaders) {
 async function handlePlan(request, env, corsHeaders) {
   try {
     const { spaceSize, soilType, goals, location } = await request.json();
+
+    // SAFEGUARD: Validate goals are permaculture-related
+    const validation = validateTopicRelevance(goals);
+    if (!validation.isRelevant) {
+      await logOffTopicQuery(`DESIGN: ${goals}`, '/api/plan', env);
+      return new Response(JSON.stringify({
+        response: createRejectionMessage(validation),
+        isOffTopic: true,
+        validationReason: validation.reason
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+
     const prompt = createPlanningPrompt(spaceSize, soilType, goals, location);
     const response = await callClaudeAPI(prompt, env.ANTHROPIC_API_KEY, 1200);
-    
-    return new Response(JSON.stringify({ 
+
+    return new Response(JSON.stringify({
       response: response.content[0].text,
-      usage: response.usage 
+      usage: response.usage,
+      isOffTopic: false
     }), {
       headers: { 'Content-Type': 'application/json', ...corsHeaders }
     });
 
   } catch (error) {
-    return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({
       error: 'Failed to generate plan',
-      details: error.message 
+      details: error.message
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', ...corsHeaders }
@@ -120,20 +315,38 @@ async function handlePlan(request, env, corsHeaders) {
 async function handleDiagnose(request, env, corsHeaders) {
   try {
     const { plant, problem, timeframe, location } = await request.json();
+
+    // SAFEGUARD: Validate plant and problem are plant-related
+    const plantValidation = validateTopicRelevance(plant);
+    const problemValidation = validateTopicRelevance(problem);
+
+    if (!plantValidation.isRelevant || !problemValidation.isRelevant) {
+      await logOffTopicQuery(`DIAGNOSE - Plant: ${plant}, Problem: ${problem}`, '/api/diagnose', env);
+      return new Response(JSON.stringify({
+        response: createRejectionMessage(plantValidation.isRelevant ? problemValidation : plantValidation),
+        isOffTopic: true,
+        validationReason: plantValidation.isRelevant ? problemValidation.reason : plantValidation.reason
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+
     const prompt = createDiagnosisPrompt(plant, problem, timeframe, location);
     const response = await callClaudeAPI(prompt, env.ANTHROPIC_API_KEY);
-    
-    return new Response(JSON.stringify({ 
+
+    return new Response(JSON.stringify({
       response: response.content[0].text,
-      usage: response.usage 
+      usage: response.usage,
+      isOffTopic: false
     }), {
       headers: { 'Content-Type': 'application/json', ...corsHeaders }
     });
 
   } catch (error) {
-    return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({
       error: 'Failed to diagnose issue',
-      details: error.message 
+      details: error.message
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', ...corsHeaders }
@@ -169,19 +382,21 @@ async function callClaudeAPI(prompt, apiKey, maxTokens = 1000) {
 
 // Helper functions (same as your original server.js)
 function createPermaculturePrompt(userQuestion, context = {}) {
-  const { 
-    location = 'Iowa, Zone 5', 
-    soilType = 'clay', 
+  const {
+    location = 'Iowa, Zone 5',
+    soilType = 'clay',
     spaceSize = 'small homestead',
     currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
     season = 'Current season'
   } = context;
-  
+
   // Debug logging
   console.log('🔍 Worker received location:', location);
   console.log('📦 Full context:', JSON.stringify(context));
-  
-  return `You are an expert permaculture consultant specializing in sustainable agriculture and homesteading. 
+
+  return `You are an expert permaculture consultant specializing in sustainable agriculture, regenerative practices, ecology, and homesteading.
+
+SCOPE: You only answer questions related to permaculture, regenerative agriculture, ecology, botany, plant science, animal husbandry, gardening, and sustainable land management.
 
 CONTEXT:
 - Location: ${location}
@@ -197,32 +412,41 @@ Please provide practical, location-specific advice that considers:
 2. Permaculture principles (care for earth, care for people, fair share)
 3. Sustainable and regenerative practices
 4. Integration with natural ecosystems
-5. Seasonal timing and appropriate tasks for ${season}
+5. Ecological relationships and biodiversity
+6. Seasonal timing and appropriate tasks for ${season}
+
+Keep your response focused on permaculture and regenerative agriculture. If the question touches on related topics like ecology or botany, provide the permaculture perspective.
 
 Format your response with clear sections and actionable advice. Use emojis sparingly for readability.`;
 }
 
 function createPlanningPrompt(spaceSize, soilType, goals, location = 'Iowa, Zone 5') {
-  return `You are a permaculture design consultant. Create a detailed plan for:
+  return `You are a permaculture design consultant specializing in regenerative agriculture and sustainable homesteading.
+
+SCOPE: You only create design plans for permaculture, regenerative agriculture, sustainable gardening, and ecological food production systems.
 
 SITE DETAILS:
 - Space: ${spaceSize}
 - Soil: ${soilType}
-- Location: ${location} (driftless region)
+- Location: ${location}
 - Goals: ${goals}
 
 Please provide:
-1. Zone-based design layout
+1. Zone-based design layout (permaculture zones)
 2. Recommended plant guilds for the soil/climate
-3. Implementation timeline
-4. Specific recommendations for soil management
-5. Integration opportunities for future sensor/automation systems
+3. Ecological relationships and polyculture design
+4. Implementation timeline
+5. Specific recommendations for soil management and regeneration
+6. Integration opportunities for future sensor/automation systems
+7. Animal integration possibilities if applicable
 
-Focus on practical, achievable steps for a homesteader with limited initial budget.`;
+Focus on practical, achievable steps for a homesteader with limited initial budget. Emphasize regenerative and sustainable practices.`;
 }
 
 function createDiagnosisPrompt(plant, problem, timeframe, location = 'Iowa, Zone 5') {
-  return `You are a plant pathologist and permaculture expert. Diagnose this issue:
+  return `You are a plant pathologist and permaculture expert specializing in organic, sustainable plant health.
+
+SCOPE: You only diagnose plant issues and provide solutions within permaculture and regenerative agriculture frameworks. Focus on ecological and organic approaches.
 
 PLANT: ${plant}
 SYMPTOMS: ${problem}
@@ -230,11 +454,12 @@ TIMEFRAME: ${timeframe}
 LOCATION: ${location}
 
 Please provide:
-1. Most likely causes (considering local conditions)
-2. Immediate treatment steps
-3. Long-term prevention strategies
+1. Most likely causes (considering local conditions and ecology)
+2. Immediate treatment steps (organic/sustainable methods)
+3. Long-term prevention strategies aligned with permaculture design
 4. When to expect improvement
 5. Warning signs to watch for
+6. Ecological/botanical context for the issue
 
-Focus on organic, sustainable solutions that align with permaculture principles.`;
+Focus exclusively on organic, sustainable, and permaculture-aligned solutions. Consider the plant's role in the broader ecosystem.`;
 }
