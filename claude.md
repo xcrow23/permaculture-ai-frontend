@@ -1,10 +1,21 @@
 # Permaculture AI Cloudflare - Project Guide
 
+## Quick Links
+
+- 📖 **[Development Journey](JOURNEY.md)** - Read the story of how this project evolved
+- 🚀 **[Deployment](#deployment-configuration)** - How to deploy changes
+- 🛡️ **[Safeguards](#subject-matter-safeguards)** - Learn about content moderation
+- 🗺️ **[Architecture](#architecture)** - Understand the tech stack
+
+---
+
 ## Project Overview
 
 **Permaculture AI** is a full-stack web application that combines permaculture expertise with AI-powered assistance through Anthropic's Claude API. It's deployed on Cloudflare with a serverless backend (Workers) and a static frontend (Pages).
 
 **Key Purpose:** Provide location-aware, seasonal permaculture guidance through four specialized tools: consultation, design planning, plant diagnostics, and future sensor integration.
+
+**Current Status:** ✅ Production-ready with subject-matter safeguards (v1.0)
 
 ---
 
@@ -33,11 +44,12 @@
 permaculture-ai-cloudflare/
 ├── public/
 │   └── index.html              # Complete SPA application (52KB)
-├── worker.js                   # Cloudflare Worker backend
+├── worker.js                   # Cloudflare Worker backend with safeguards
 ├── wrangler.toml              # Cloudflare configuration
+├── claude.md                  # Project documentation (this file)
+├── JOURNEY.md                 # Development story & narrative
 ├── .git/                      # Version control
-├── .claude/                   # Claude IDE configuration
-└── claude.md                  # This file
+└── .claude/                   # Claude IDE configuration
 ```
 
 ---
@@ -368,11 +380,28 @@ wrangler dev                    # Start local server
 
 ---
 
+## Project History & Context
+
+For a complete narrative about the project's evolution, architectural decisions, and development journey, see **[JOURNEY.md](JOURNEY.md)**.
+
+This includes:
+- Why each architectural decision was made
+- How the project evolved through 10+ commits
+- Key learnings from development
+- Vision for Phase II and beyond
+
+---
+
 ## Contact & Contribution
 
 For questions about the architecture or development, refer to:
+- **[JOURNEY.md](JOURNEY.md)** - Full development story
 - Recent git commits (visible in commit history)
 - Code comments in `public/index.html` and `worker.js`
 - Feature TODOs marked in comments
 
-**Last Updated:** 2025-11-15
+---
+
+**Last Updated:** 2025-11-16 (Subject-matter safeguards v1.0)
+**Version:** 1.0 - Production Ready
+**Next Phase:** IoT Sensor Integration (Phase II)
