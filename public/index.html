@@ -1212,6 +1212,31 @@
             margin-left: 16px;
             margin-bottom: 4px;
         }
+
+        .advanced-menu-item {
+            display: block;
+            width: 100%;
+            padding: 12px 16px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .advanced-menu-item:hover {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--accent-green);
+        }
+
+        .advanced-menu-item.active {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--accent-green);
+        }
     </style>
 </head>
 <body>
@@ -1235,11 +1260,17 @@
         <div class="nav-tabs">
             <button class="nav-tab active" data-tab="ask">Consult</button>
             <button class="nav-tab" data-tab="plan">Design</button>
-            <button class="nav-tab" data-tab="guild">Guild</button>
-            <button class="nav-tab" data-tab="zones">Zones</button>
             <button class="nav-tab" data-tab="diagnose">Heal</button>
-            <button class="nav-tab" data-tab="planner">Plan</button>
             <button class="nav-tab" data-tab="data">Sense</button>
+
+            <div style="position: relative; flex: 1; max-width: 120px;">
+                <button class="nav-tab" id="advancedMenuBtn" style="width: 100%;">📚 Tools ▼</button>
+                <div id="advancedMenu" style="display: none; position: absolute; top: 100%; right: 0; background: var(--bg-secondary); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 6px; z-index: 100; min-width: 150px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                    <button class="advanced-menu-item" data-tab="guild">🌱 Guild Builder</button>
+                    <button class="advanced-menu-item" data-tab="planner">🗓️ Seasonal Plan</button>
+                    <button class="advanced-menu-item" data-tab="zones">🌡️ Zones</button>
+                </div>
+            </div>
         </div>
         
         <div class="tab-content">
@@ -1724,15 +1755,18 @@
             }
         }
         
-        // Load saved location on page load
+        // UNIFIED LOAD EVENT - All initialization happens here
         window.addEventListener('load', function() {
+            console.log('🚀 Initializing Permaculture AI...');
+
+            // === LOCATION & SEASON SETUP ===
             const savedLocation = localStorage.getItem('userLocation');
             const savedZone = localStorage.getItem('userZone');
-            
+
             if (savedLocation && savedZone) {
                 document.querySelector('.location-tag').textContent = `Zone ${savedZone} • ${savedLocation}`;
             }
-            
+
             // Set current season
             const seasonInfo = getCurrentSeasonContext();
             const seasonEmoji = {
@@ -1742,26 +1776,84 @@
                 'Winter': '❄️'
             };
             document.getElementById('seasonIndicator').textContent = `${seasonEmoji[seasonInfo.season]} ${seasonInfo.season}`;
-            
-            // Render accurate moon phase
+
+            // === MOON PHASE ===
             renderMoonPhase();
-            
-            // Update moon phase every hour
             setInterval(renderMoonPhase, 3600000);
 
-            // Tab switching - MUST be inside load event
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.addEventListener('click', function() {
+            // === TAB NAVIGATION ===
+            // Main nav tabs
+            document.querySelectorAll('.nav-tab[data-tab]').forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
                     const targetTab = this.getAttribute('data-tab');
-
-                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-
-                    this.classList.add('active');
-                    document.getElementById(targetTab).classList.add('active');
+                    switchTab(targetTab);
                 });
             });
+
+            // Advanced menu toggle
+            const advancedMenuBtn = document.getElementById('advancedMenuBtn');
+            const advancedMenu = document.getElementById('advancedMenu');
+
+            if (advancedMenuBtn && advancedMenu) {
+                advancedMenuBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    advancedMenu.style.display = advancedMenu.style.display === 'none' ? 'block' : 'none';
+                });
+
+                // Advanced menu items
+                document.querySelectorAll('.advanced-menu-item').forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const targetTab = this.getAttribute('data-tab');
+                        advancedMenu.style.display = 'none';
+                        switchTab(targetTab);
+                    });
+                });
+
+                // Close menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!advancedMenuBtn.contains(e.target) && !advancedMenu.contains(e.target)) {
+                        advancedMenu.style.display = 'none';
+                    }
+                });
+            }
+
+            // === ZONE MAP ===
+            initializeZoneMap();
+
+            // === API CONNECTIVITY CHECK ===
+            fetch(`${API_BASE}/health`).catch(error => {
+                console.warn('⚠️ Connection unstable:', error.message);
+            });
+
+            console.log('✅ Initialization complete');
         });
+
+        // Tab switching function
+        function switchTab(tabId) {
+            console.log('Switching to tab:', tabId);
+
+            // Remove active from all tabs and panels
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.advanced-menu-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+
+            // Add active to selected tab
+            const tab = document.querySelector(`.nav-tab[data-tab="${tabId}"], .advanced-menu-item[data-tab="${tabId}"]`);
+            if (tab) {
+                tab.classList.add('active');
+            }
+
+            // Show selected panel
+            const panel = document.getElementById(tabId);
+            if (panel) {
+                panel.classList.add('active');
+                console.log('✅ Tab switched:', tabId);
+            } else {
+                console.error('❌ Tab panel not found:', tabId);
+            }
+        }
         
         function askQuickQuestion(topic) {
             document.getElementById('userQuestion').value = `What wisdom can you share about ${topic} for Iowa permaculture systems?`;
@@ -2132,17 +2224,7 @@ ${new Date().toLocaleString()}
                 .replace(/\n/g, '<br>');
         }
         
-        // Connectivity check
-        window.addEventListener('load', async function() {
-            try {
-                const response = await fetch(`${API_BASE}/health`);
-                if (response.ok) {
-                    console.log('✅ Neural link established');
-                }
-            } catch (error) {
-                console.warn('⚠️ Connection unstable:', error.message);
-            }
-        });
+        // Connectivity check - now handled in unified load event above
 
         // History Management Functions
         const HistoryManager = {
@@ -2719,10 +2801,7 @@ ${new Date().toLocaleString()}
             }
         };
 
-        // Initialize Zone Map on page load
-        window.addEventListener('load', function() {
-            initializeZoneMap();
-        });
+        // Zone Map initialization - now handled in unified load event above
 
         function initializeZoneMap() {
             const zoneGrid = document.getElementById('zoneGrid');
