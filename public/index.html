@@ -1092,6 +1092,46 @@
             margin-bottom: 4px;
             margin-left: 16px;
         }
+
+        .guild-companion {
+            background: var(--bg-card);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .guild-companion:hover {
+            border-color: var(--accent-green);
+            background: rgba(0, 255, 136, 0.05);
+            box-shadow: var(--glow);
+        }
+
+        .guild-plant-name {
+            color: var(--accent-green);
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .guild-plant-benefit {
+            color: var(--text-secondary);
+            font-size: 12px;
+            line-height: 1.5;
+            margin-bottom: 6px;
+        }
+
+        .guild-spacing {
+            font-size: 11px;
+            color: var(--accent-blue);
+            background: rgba(6, 182, 212, 0.1);
+            padding: 6px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -1115,6 +1155,7 @@
         <div class="nav-tabs">
             <button class="nav-tab active" data-tab="ask">Consult</button>
             <button class="nav-tab" data-tab="plan">Design</button>
+            <button class="nav-tab" data-tab="guild">Guild</button>
             <button class="nav-tab" data-tab="diagnose">Heal</button>
             <button class="nav-tab" data-tab="planner">Plan</button>
             <button class="nav-tab" data-tab="data">Sense</button>
@@ -1162,7 +1203,19 @@
             <!-- Planning Tab -->
             <div class="tab-panel" id="plan">
                 <h2 class="section-title">System Design</h2>
-                
+
+                <div style="margin-bottom: 20px;">
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Quick Start</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button onclick="loadTemplate('urban')" style="background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.3); color: var(--accent-green); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(0, 255, 136, 0.2)'" onmouseout="this.style.background='rgba(0, 255, 136, 0.1)'">🏙️ Urban Balcony</button>
+                        <button onclick="loadTemplate('homestead')" style="background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.3); color: var(--accent-green); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(0, 255, 136, 0.2)'" onmouseout="this.style.background='rgba(0, 255, 136, 0.1)'">🏡 1-Acre Homestead</button>
+                        <button onclick="loadTemplate('forest')" style="background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.3); color: var(--accent-green); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(0, 255, 136, 0.2)'" onmouseout="this.style.background='rgba(0, 255, 136, 0.1)'">🌲 Food Forest</button>
+                        <button onclick="loadTemplate('micro')" style="background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.3); color: var(--accent-green); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(0, 255, 136, 0.2)'" onmouseout="this.style.background='rgba(0, 255, 136, 0.1)'">🌿 Micro Garden</button>
+                    </div>
+                </div>
+
+                <hr style="border: none; border-top: 1px solid rgba(0, 255, 136, 0.1); margin: 20px 0;">
+
                 <div class="input-group">
                     <label>Territory Size</label>
                     <select id="spaceSize">
@@ -1201,6 +1254,40 @@
                 </div>
             </div>
             
+            <!-- Guild Builder Tab -->
+            <div class="tab-panel" id="guild">
+                <h2 class="section-title">Guild Builder</h2>
+
+                <div class="input-group">
+                    <label>Primary Plant</label>
+                    <input type="text" id="guildPrimaryPlant" placeholder="Apple tree, Tomato, Walnut, Comfrey..." maxlength="100">
+                </div>
+
+                <div class="input-group">
+                    <label>Your Zone</label>
+                    <select id="guildZone">
+                        <option value="3">Zone 3</option>
+                        <option value="4">Zone 4</option>
+                        <option value="5" selected>Zone 5</option>
+                        <option value="6">Zone 6</option>
+                        <option value="7">Zone 7</option>
+                        <option value="8">Zone 8</option>
+                        <option value="9">Zone 9</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="buildGuild()">🌱 Build Guild</button>
+
+                <div id="guildResponse" class="response-box" style="display:none;">
+                    <p>Designing plant companions...</p>
+                </div>
+
+                <div id="guildVisualization" style="display:none;">
+                    <svg id="guildSVG" viewBox="0 0 400 400" style="width: 100%; height: auto; background: var(--bg-card); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 8px; margin: 20px 0;"></svg>
+                    <div id="guildCompanions" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
             <!-- Diagnose Tab -->
             <div class="tab-panel" id="diagnose">
                 <h2 class="section-title">Plant Diagnostics</h2>
@@ -1248,6 +1335,11 @@
 
                 <div id="plannerCalendar" style="display:none;">
                     <div id="monthsGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;"></div>
+
+                    <div style="margin-top: 30px;">
+                        <h3 style="color: var(--accent-green); font-size: 14px; margin-bottom: 15px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Frost Window Timeline</h3>
+                        <div id="frostChart" style="background: var(--bg-card); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 8px; padding: 16px; overflow-x: auto;"></div>
+                    </div>
                 </div>
             </div>
 
@@ -2187,12 +2279,296 @@ ${new Date().toLocaleString()}
             monthsGrid.innerHTML = html;
             calendarDiv.style.display = 'block';
             document.getElementById('plannerResponse').style.display = 'none';
+
+            // Render frost timeline visualization
+            renderFrostTimeline();
+        }
+
+        function renderFrostTimeline() {
+            const frostChart = document.getElementById('frostChart');
+            const monthNames = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+            // Zone 5 avg frost dates
+            const frostData = [1, 1, 1, 0.7, 0.2, 0, 0, 0, 0.1, 0.6, 0.95, 1];
+
+            // Create SVG
+            const width = 100%;
+            const height = '120px';
+            let svg = `<svg viewBox="0 0 600 120" style="width: 100%; height: ${height}; min-height: 120px;">`;
+
+            // Draw background
+            svg += `<rect width="600" height="120" fill="rgba(0, 0, 0, 0.2)" rx="4"/>`;
+
+            // Draw month labels and frost bars
+            for (let i = 0; i < 12; i++) {
+                const x = (i * 50) + 5;
+                const barHeight = frostData[i] * 80;
+                const y = 100 - barHeight;
+
+                // Frost bar (gradient)
+                const color = frostData[i] > 0.7 ? '#4267ff' : frostData[i] > 0.3 ? '#06b6d4' : '#00ff88';
+                svg += `<rect x="${x}" y="${y}" width="40" height="${barHeight}" fill="${color}" opacity="0.7" rx="2"/>`;
+
+                // Month label
+                svg += `<text x="${x + 20}" y="115" font-size="12" text-anchor="middle" fill="rgba(230, 237, 243, 0.7)" font-weight="600">${monthNames[i]}</text>`;
+            }
+
+            // Legend
+            svg += `<text x="10" y="30" font-size="11" fill="rgba(230, 237, 243, 0.6)">Frost Risk →</text>`;
+            svg += `<rect x="120" y="18" width="12" height="12" fill="#4267ff" opacity="0.7"/><text x="138" y="26" font-size="10" fill="rgba(230, 237, 243, 0.5)">High</text>`;
+            svg += `<rect x="200" y="18" width="12" height="12" fill="#06b6d4" opacity="0.7"/><text x="218" y="26" font-size="10" fill="rgba(230, 237, 243, 0.5)">Medium</text>`;
+            svg += `<rect x="320" y="18" width="12" height="12" fill="#00ff88" opacity="0.7"/><text x="338" y="26" font-size="10" fill="rgba(230, 237, 243, 0.5)">Low</text>`;
+
+            svg += '</svg>';
+
+            frostChart.innerHTML = svg;
         }
 
         function displaySeasonalPlan(response, responseDiv, calendarDiv) {
             responseDiv.style.display = 'none';
             calendarDiv.style.display = 'block';
             // Parse response and display as calendar if API endpoint exists in future
+        }
+
+        // Design Template Library
+        const designTemplates = {
+            urban: {
+                name: 'Urban Balcony Garden',
+                spaceSize: 'Small garden (< 500 sq ft)',
+                soilType: 'Container mix (pre-made)',
+                goals: 'Fresh herbs, vegetables, aesthetic enjoyment in limited space'
+            },
+            homestead: {
+                name: '1-Acre Permaculture Homestead',
+                spaceSize: 'Small homestead (1-5 acres)',
+                soilType: 'Loam (balanced)',
+                goals: 'Food sovereignty, habitat restoration, water retention, carbon sequestration'
+            },
+            forest: {
+                name: 'Food Forest System',
+                spaceSize: 'Large garden (2000-5000 sq ft)',
+                soilType: 'Loam (balanced)',
+                goals: 'Perennial food production, ecosystem restoration, minimal maintenance over time'
+            },
+            micro: {
+                name: 'Micro-Garden (Apartment)',
+                spaceSize: 'Small garden (< 500 sq ft)',
+                soilType: 'Container mix (pre-made)',
+                goals: 'Culinary herbs, microgreens, minimal water usage, apartment-friendly'
+            }
+        };
+
+        function loadTemplate(templateKey) {
+            const template = designTemplates[templateKey];
+            if (!template) return;
+
+            // Populate form fields
+            document.getElementById('spaceSize').value = template.spaceSize;
+            document.getElementById('soilType').value = template.soilType;
+            document.getElementById('goals').value = template.goals;
+
+            // Update character counter
+            updateCharCount(document.getElementById('goals'), 'charCount2');
+
+            // Show visual feedback
+            showTemplateNotification(`Loaded: ${template.name}`);
+        }
+
+        function showTemplateNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0, 255, 136, 0.2);
+                border: 1px solid rgba(0, 255, 136, 0.5);
+                color: var(--accent-green);
+                padding: 12px 20px;
+                border-radius: 6px;
+                font-size: 12px;
+                font-weight: 600;
+                z-index: 1000;
+                animation: slideDown 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideUp 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+        }
+
+        // Add animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideDown {
+                from { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+                to { transform: translateX(-50%) translateY(0); opacity: 1; }
+            }
+            @keyframes slideUp {
+                from { transform: translateX(-50%) translateY(0); opacity: 1; }
+                to { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Guild Builder Database
+        const guildDatabase = {
+            'apple': {
+                name: 'Apple Tree Guild',
+                companions: [
+                    { plant: 'Borage', role: 'Pollinator attractant', spacing: '2-3 ft', benefit: 'Attracts bees, beneficial insects' },
+                    { plant: 'Garlic', role: 'Pest deterrent', spacing: '1-2 ft', benefit: 'Repels aphids and mites' },
+                    { plant: 'Chives', role: 'Pest deterrent', spacing: '1 ft', benefit: 'Deters Japanese beetles' },
+                    { plant: 'Comfrey', role: 'Nutrient accumulator', spacing: '3 ft', benefit: 'Draws minerals, mulch source' },
+                    { plant: 'Clover', role: 'Nitrogen fixer', spacing: '1-2 ft', benefit: 'Fixes nitrogen in soil' }
+                ]
+            },
+            'tomato': {
+                name: 'Tomato Guild',
+                companions: [
+                    { plant: 'Basil', role: 'Flavor enhancer', spacing: '1 ft', benefit: 'Repels flies, improves flavor' },
+                    { plant: 'Borage', role: 'Pollinator', spacing: '2 ft', benefit: 'Attracts pollinators' },
+                    { plant: 'Marigold', role: 'Pest deterrent', spacing: '1 ft', benefit: 'Repels nematodes' },
+                    { plant: 'Carrot', role: 'Root cropper', spacing: '1-2 ft', benefit: 'Uses different soil layer' },
+                    { plant: 'Lettuce', role: 'Shade crop', spacing: '1 ft', benefit: 'Uses shade, saves space' }
+                ]
+            },
+            'walnut': {
+                name: 'Black Walnut Guild',
+                companions: [
+                    { plant: 'Bergamot', role: 'Pollinator', spacing: '2-3 ft', benefit: 'Attracts beneficial insects' },
+                    { plant: 'Pawpaw', role: 'Nitrogen fixer', spacing: '10-15 ft', benefit: 'Understory, fixes nitrogen' },
+                    { plant: 'Ramps', role: 'Ground cover', spacing: '1 ft', benefit: 'Shade tolerant, edible' },
+                    { plant: 'Ginger', role: 'Shade lover', spacing: '2 ft', benefit: 'Thrives in walnut shade' },
+                    { plant: 'Comfrey', role: 'Mulch source', spacing: '3 ft', benefit: 'Deep roots, biomass' }
+                ]
+            },
+            'comfrey': {
+                name: 'Comfrey Patch',
+                companions: [
+                    { plant: 'Tansy', role: 'Companion', spacing: '2 ft', benefit: 'Pest deterrent' },
+                    { plant: 'Bee Balm', role: 'Pollinator', spacing: '2 ft', benefit: 'Attracts bees' },
+                    { plant: 'Yarrow', role: 'Medicinal', spacing: '2 ft', benefit: 'Beneficial herb' },
+                    { plant: 'Mint', role: 'Pest control', spacing: '2 ft', benefit: 'Repels insects' }
+                ]
+            }
+        };
+
+        async function buildGuild() {
+            const primaryPlant = document.getElementById('guildPrimaryPlant').value.toLowerCase();
+            const zone = document.getElementById('guildZone').value;
+            const responseDiv = document.getElementById('guildResponse');
+            const vizDiv = document.getElementById('guildVisualization');
+            const button = event.target;
+
+            if (!primaryPlant.trim()) {
+                showError('Please enter a primary plant', responseDiv);
+                return;
+            }
+
+            setLoadingState(button, responseDiv, 'Designing plant guild...');
+            vizDiv.style.display = 'none';
+
+            try {
+                // Try to find guild in database (case insensitive)
+                let guild = null;
+                for (const [key, data] of Object.entries(guildDatabase)) {
+                    if (primaryPlant.includes(key) || key.includes(primaryPlant.split(' ')[0])) {
+                        guild = data;
+                        break;
+                    }
+                }
+
+                if (!guild) {
+                    // Use generic guild as fallback
+                    guild = {
+                        name: `${primaryPlant} Guild`,
+                        companions: [
+                            { plant: 'Borage', role: 'Pollinator', spacing: '2-3 ft', benefit: 'Attracts beneficial insects' },
+                            { plant: 'Marigold', role: 'Pest Deterrent', spacing: '1-2 ft', benefit: 'Repels harmful insects' },
+                            { plant: 'Comfrey', role: 'Nutrient accumulator', spacing: '3 ft', benefit: 'Draws deep minerals' },
+                            { plant: 'Clover', role: 'Nitrogen fixer', spacing: '1-2 ft', benefit: 'Enriches soil' }
+                        ]
+                    };
+                }
+
+                displayGuild(guild, primaryPlant, zone);
+                addQueryToHistory(`Guild: ${primaryPlant} (Zone ${zone})`, guild.name, 'guild', null);
+
+            } catch (error) {
+                console.error('Guild building error:', error);
+                showError(`Guild design failed: ${error.message}`, responseDiv);
+            } finally {
+                resetButton(button, '🌱 Build Guild');
+            }
+        }
+
+        function displayGuild(guildData, primaryPlant, zone) {
+            const vizDiv = document.getElementById('guildVisualization');
+            const svg = document.getElementById('guildSVG');
+            const companionsDiv = document.getElementById('guildCompanions');
+
+            // Draw guild visualization
+            drawGuildVisualization(svg, guildData.companions);
+
+            // Display companion details
+            let html = '<div style="margin-bottom: 15px;"><p style="color: var(--accent-green); font-size: 12px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 12px;">Companion Plants</p>';
+
+            guildData.companions.forEach(companion => {
+                html += `
+                    <div class="guild-companion">
+                        <div class="guild-plant-name">🌿 ${companion.plant}</div>
+                        <div class="guild-plant-benefit"><strong>Role:</strong> ${companion.role}</div>
+                        <div class="guild-plant-benefit"><strong>Benefit:</strong> ${companion.benefit}</div>
+                        <span class="guild-spacing">↔️ ${companion.spacing} spacing</span>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            companionsDiv.innerHTML = html;
+            vizDiv.style.display = 'block';
+            document.getElementById('guildResponse').style.display = 'none';
+        }
+
+        function drawGuildVisualization(svg, companions) {
+            const centerX = 200, centerY = 200;
+            const primaryRadius = 30;
+            const companionRadius = 15;
+            const orbitRadius = 100;
+
+            let svgContent = '';
+
+            // Draw orbits
+            svgContent += `<circle cx="200" cy="200" r="100" fill="none" stroke="rgba(0, 255, 136, 0.1)" stroke-width="1" stroke-dasharray="5,5"/>`;
+            svgContent += `<circle cx="200" cy="200" r="150" fill="none" stroke="rgba(0, 255, 136, 0.05)" stroke-width="1" stroke-dasharray="3,3"/>`;
+
+            // Draw primary plant (center)
+            svgContent += `<circle cx="${centerX}" cy="${centerY}" r="${primaryRadius}" fill="#00ff88" opacity="0.3"/>`;
+            svgContent += `<circle cx="${centerX}" cy="${centerY}" r="${primaryRadius}" fill="none" stroke="#00ff88" stroke-width="2"/>`;
+            svgContent += `<text x="${centerX}" y="${centerY + 5}" text-anchor="middle" font-size="10" fill="#e6edf3" font-weight="600">Primary</text>`;
+
+            // Draw companion plants
+            companions.forEach((companion, index) => {
+                const angle = (index / companions.length) * Math.PI * 2;
+                const x = centerX + Math.cos(angle) * orbitRadius;
+                const y = centerY + Math.sin(angle) * orbitRadius;
+
+                // Connection line
+                svgContent += `<line x1="${centerX}" y1="${centerY}" x2="${x}" y2="${y}" stroke="rgba(0, 255, 136, 0.2)" stroke-width="1"/>`;
+
+                // Companion circle
+                svgContent += `<circle cx="${x}" cy="${y}" r="${companionRadius}" fill="#06b6d4" opacity="0.2"/>`;
+                svgContent += `<circle cx="${x}" cy="${y}" r="${companionRadius}" fill="none" stroke="#06b6d4" stroke-width="1.5"/>`;
+
+                // Label
+                const label = companion.plant.substring(0, 8);
+                svgContent += `<text x="${x}" y="${y + 4}" text-anchor="middle" font-size="8" fill="#8b949e">${label}</text>`;
+            });
+
+            svg.innerHTML = svgContent;
         }
     </script>
 </body>
