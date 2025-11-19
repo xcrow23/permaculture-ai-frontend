@@ -2825,7 +2825,10 @@ ${new Date().toLocaleString()}
                     : 'https://permaculture-ai-worker.dreadcrownest.workers.dev/api';
 
                 // Call API
-                const response = await fetch(`${API_BASE}/grid-plan`, {
+                const apiUrl = `${API_BASE}/grid-plan`;
+                console.log('🔗 Grid Plan API call:', apiUrl);
+
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -2838,12 +2841,24 @@ ${new Date().toLocaleString()}
                     })
                 });
 
+                console.log('📊 Response status:', response.status, response.statusText);
+
+                // Get response text first for debugging
+                const responseText = await response.text();
+                console.log('📝 Response text:', responseText.substring(0, 200));
+
                 if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || `HTTP ${response.status}`);
+                    throw new Error(`HTTP ${response.status}: ${responseText.substring(0, 100)}`);
                 }
 
-                const data = await response.json();
+                // Parse JSON from the response text
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    console.error('❌ Failed to parse JSON:', responseText);
+                    throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}`);
+                }
 
                 // Handle off-topic queries
                 if (data.isOffTopic) {
