@@ -1265,7 +1265,8 @@
 
             <div style="position: relative; flex: 1; max-width: 120px;">
                 <button class="nav-tab" id="advancedMenuBtn" style="width: 100%;">📚 Tools ▼</button>
-                <div id="advancedMenu" style="display: none; position: absolute; top: 100%; right: 0; background: var(--bg-secondary); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 6px; z-index: 100; min-width: 150px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                <div id="advancedMenu" style="display: none; position: absolute; top: 100%; right: 0; background: var(--bg-secondary); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 6px; z-index: 100; min-width: 180px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                    <button class="advanced-menu-item" data-tab="grid">📐 Grid Planner</button>
                     <button class="advanced-menu-item" data-tab="guild">🌱 Guild Builder</button>
                     <button class="advanced-menu-item" data-tab="planner">🗓️ Seasonal Plan</button>
                     <button class="advanced-menu-item" data-tab="zones">🌡️ Zones</button>
@@ -1365,7 +1366,43 @@
                     <button class="btn" onclick="exportDesignText()" style="background: linear-gradient(135deg, #a855f7 0%, #06b6d4 100%); padding: 12px; font-size: 13px;">📄 Text Export</button>
                 </div>
             </div>
-            
+
+            <!-- Grid Planner Tab -->
+            <div class="tab-panel" id="grid">
+                <h2 class="section-title">Garden Grid Planner</h2>
+
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6;">Input your plot dimensions and plants. Claude will suggest an optimal layout with spacing, companions, and visual garden blueprint.</p>
+
+                <div class="input-group">
+                    <label>Plot Width (feet)</label>
+                    <input type="number" id="gridWidth" placeholder="e.g., 20" min="1" max="200">
+                </div>
+
+                <div class="input-group">
+                    <label>Plot Length (feet)</label>
+                    <input type="number" id="gridLength" placeholder="e.g., 30" min="1" max="200">
+                </div>
+
+                <div class="input-group">
+                    <label>Plants (comma-separated)</label>
+                    <input type="text" id="gridPlants" placeholder="Apple, Tomato, Basil, Comfrey" maxlength="200">
+                </div>
+
+                <button class="btn" onclick="generateGridPlan()">📐 Create Garden Plan</button>
+
+                <div id="gridResponse" class="response-box" style="display:none;">
+                    <p>Designing your garden...</p>
+                </div>
+
+                <div id="gridVisualization" style="display:none;">
+                    <h3 style="color: var(--accent-green); font-size: 14px; margin: 20px 0 15px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Visual Layout</h3>
+                    <svg id="gridSVG" viewBox="0 0 800 600" style="width: 100%; height: auto; background: var(--bg-card); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 8px; margin-bottom: 20px;"></svg>
+
+                    <h3 style="color: var(--accent-green); font-size: 14px; margin: 20px 0 15px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Design Recommendations</h3>
+                    <div id="gridRecommendations" style="color: var(--text-secondary); font-size: 13px; line-height: 1.7;"></div>
+                </div>
+            </div>
+
             <!-- Guild Builder Tab -->
             <div class="tab-panel" id="guild">
                 <h2 class="section-title">Guild Builder</h2>
@@ -2746,6 +2783,200 @@ ${new Date().toLocaleString()}
             });
 
             svg.innerHTML = svgContent;
+        }
+
+        // Grid Planner Functions
+        async function generateGridPlan() {
+            const width = parseInt(document.getElementById('gridWidth').value);
+            const length = parseInt(document.getElementById('gridLength').value);
+            const plants = document.getElementById('gridPlants').value.trim();
+            const button = event.target;
+
+            // Validation
+            if (!width || !length || !plants) {
+                alert('Please enter plot dimensions and at least one plant');
+                return;
+            }
+
+            if (width > 200 || length > 200) {
+                alert('Plot dimensions must be 200 feet or less');
+                return;
+            }
+
+            const responseDiv = document.getElementById('gridResponse');
+            const vizDiv = document.getElementById('gridVisualization');
+
+            // Show loading state
+            button.disabled = true;
+            button.textContent = '🔄 Designing...';
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = '<p style="color: var(--accent-green);">✨ Designing your garden layout...</p>';
+            vizDiv.style.display = 'none';
+
+            try {
+                // Get location from localStorage
+                const location = localStorage.userLocation || 'Iowa, Zone 5';
+                const zone = localStorage.userZone || '5';
+                const soilType = localStorage.userSoilType || 'loam';
+
+                // Call API
+                const response = await fetch('/api/grid-plan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        width,
+                        length,
+                        plants,
+                        location,
+                        zone,
+                        soilType
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || `HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Handle off-topic queries
+                if (data.isOffTopic) {
+                    responseDiv.innerHTML = `<p style="color: var(--accent-green); line-height: 1.6;">${data.response}</p>`;
+                    vizDiv.style.display = 'none';
+                } else {
+                    // Display the plan with visualization
+                    displayGridPlan(data.response, width, length, plants);
+                    addQueryToHistory(`Grid: ${width}x${length}ft (${plants})`, data.response.substring(0, 100), 'grid', null);
+                }
+
+                responseDiv.style.display = 'none';
+
+            } catch (error) {
+                console.error('Grid planning error:', error);
+                responseDiv.innerHTML = `<p style="color: #ff6b6b;">❌ Error: ${error.message}</p>`;
+            } finally {
+                button.disabled = false;
+                button.textContent = '📐 Create Garden Plan';
+            }
+        }
+
+        function displayGridPlan(response, width, length, plantList) {
+            const vizDiv = document.getElementById('gridVisualization');
+            const svgContainer = document.getElementById('gridSVG');
+            const recsDiv = document.getElementById('gridRecommendations');
+
+            // Parse Claude's response to extract recommendations
+            const recommendations = parseGridRecommendations(response);
+
+            // Draw the grid visualization
+            drawGridVisualization(svgContainer, width, length, recommendations);
+
+            // Display text recommendations
+            let html = `
+                <div style="background: var(--bg-card); padding: 15px; border-radius: 6px; border-left: 3px solid var(--accent-green);">
+                    <h4 style="color: var(--accent-green); margin-top: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Design Details</h4>
+                    <p style="white-space: pre-wrap; color: var(--text-secondary); font-size: 13px; line-height: 1.7;">${response}</p>
+                </div>
+            `;
+
+            recsDiv.innerHTML = html;
+            vizDiv.style.display = 'block';
+        }
+
+        function parseGridRecommendations(response) {
+            // Extract plant placement information from Claude's response
+            // This is a simple parser - Claude provides structured output
+            const plants = [];
+
+            // Look for plant names and spacing info
+            const lines = response.split('\n');
+            let currentPlant = null;
+
+            lines.forEach(line => {
+                const spacingMatch = line.match(/(\d+)\s*(?:inches?|in|feet|ft)/i);
+                const spaceNum = spacingMatch ? parseInt(spacingMatch[1]) : null;
+
+                if (spaceNum) {
+                    plants.push({
+                        spacing: spaceNum,
+                        description: line
+                    });
+                }
+            });
+
+            return plants.length > 0 ? plants : [{ spacing: 12, description: 'Standard 12-inch spacing' }];
+        }
+
+        function drawGridVisualization(svgElement, width, length, recommendations) {
+            // Calculate SVG dimensions based on plot ratio
+            const scale = 2; // pixels per foot
+            const svgWidth = width * scale + 60;
+            const svgHeight = length * scale + 60;
+            const paddingX = 30;
+            const paddingY = 30;
+
+            // Set viewBox for responsive scaling
+            svgElement.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
+
+            let svgContent = '';
+
+            // Draw background grid
+            svgContent += `<rect x="${paddingX}" y="${paddingY}" width="${width * scale}" height="${length * scale}" fill="var(--bg-card)" stroke="rgba(0, 255, 136, 0.3)" stroke-width="2" rx="4"/>`;
+
+            // Draw grid lines (every foot)
+            const gridColor = 'rgba(0, 255, 136, 0.1)';
+            for (let i = 0; i <= width; i += 5) {
+                const x = paddingX + i * scale;
+                svgContent += `<line x1="${x}" y1="${paddingY}" x2="${x}" y2="${paddingY + length * scale}" stroke="${gridColor}" stroke-width="0.5"/>`;
+            }
+            for (let i = 0; i <= length; i += 5) {
+                const y = paddingY + i * scale;
+                svgContent += `<line x1="${paddingX}" y1="${y}" x2="${paddingX + width * scale}" y2="${y}" stroke="${gridColor}" stroke-width="0.5"/>`;
+            }
+
+            // Add dimension labels
+            svgContent += `<text x="${paddingX + (width * scale) / 2}" y="${paddingY + length * scale + 18}" text-anchor="middle" font-size="12" fill="var(--accent-green)" font-weight="600">${width} ft</text>`;
+            svgContent += `<text x="${paddingX - 15}" y="${paddingY + (length * scale) / 2 + 4}" text-anchor="middle" font-size="12" fill="var(--accent-green)" font-weight="600" transform="rotate(-90 ${paddingX - 15} ${paddingY + (length * scale) / 2})">${length} ft</text>`;
+
+            // Draw representative plant zones
+            const numPlants = Math.min(recommendations.length || 3, 8);
+            const colors = ['#00ff88', '#06b6d4', '#fbbf24', '#f87171', '#a78bfa', '#ec4899', '#14b8a6', '#f59e0b'];
+
+            for (let i = 0; i < numPlants; i++) {
+                const spacing = recommendations[i]?.spacing || 12;
+                const plantSize = Math.max(8, Math.min(spacing * 0.8, 20));
+
+                // Distribute plants across the grid in a pattern
+                const cols = Math.ceil(Math.sqrt(numPlants));
+                const row = Math.floor(i / cols);
+                const col = i % cols;
+
+                const plantX = paddingX + (col + 0.5) * (width * scale / cols);
+                const plantY = paddingY + (row + 0.5) * (length * scale / Math.ceil(numPlants / cols));
+
+                // Draw plant representation
+                svgContent += `<circle cx="${plantX}" cy="${plantY}" r="${plantSize / 2}" fill="${colors[i]}" opacity="0.4"/>`;
+                svgContent += `<circle cx="${plantX}" cy="${plantY}" r="${plantSize / 2}" fill="none" stroke="${colors[i]}" stroke-width="1.5"/>`;
+
+                // Add spacing indicator
+                svgContent += `<circle cx="${plantX}" cy="${plantY}" r="${spacing / 2}" fill="none" stroke="${colors[i]}" stroke-width="0.5" stroke-dasharray="2,2" opacity="0.6"/>`;
+            }
+
+            // Draw legend
+            let legendY = paddingY + length * scale + 35;
+            svgContent += `<text x="${paddingX}" y="${legendY}" font-size="11" fill="var(--accent-green)" font-weight="600" text-transform="uppercase">Legend:</text>`;
+
+            const legendItems = Math.min(numPlants, 4);
+            for (let i = 0; i < legendItems; i++) {
+                const legendX = paddingX + 60 + i * (svgWidth / 5);
+                const legendItemY = legendY;
+
+                svgContent += `<circle cx="${legendX}" cy="${legendItemY - 5}" r="4" fill="${colors[i]}" opacity="0.6"/>`;
+                svgContent += `<text x="${legendX + 10}" y="${legendItemY}" font-size="10" fill="var(--text-secondary)">Plant ${i + 1}</text>`;
+            }
+
+            svgElement.innerHTML = svgContent;
         }
 
         // Zone Map Database

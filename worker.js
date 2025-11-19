@@ -192,6 +192,8 @@ export default {
         return await handlePlan(request, env, corsHeaders);
       } else if (url.pathname === '/api/diagnose' && request.method === 'POST') {
         return await handleDiagnose(request, env, corsHeaders);
+      } else if (url.pathname === '/api/grid-plan' && request.method === 'POST') {
+        return await handleGridPlan(request, env, corsHeaders);
       } else if (url.pathname === '/api/health' && request.method === 'GET') {
         return new Response(JSON.stringify({ 
           status: 'OK', 
@@ -354,6 +356,54 @@ async function handleDiagnose(request, env, corsHeaders) {
   }
 }
 
+async function handleGridPlan(request, env, corsHeaders) {
+  try {
+    const { width, length, plants, location = 'Iowa, Zone 5', zone = '5', soilType = 'loam' } = await request.json();
+
+    // Validation
+    if (!width || !length || !plants) {
+      return new Response(JSON.stringify({ error: 'Width, length, and plants are required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+
+    // SAFEGUARD: Validate plants are permaculture-related
+    const validation = validateTopicRelevance(plants);
+    if (!validation.isRelevant) {
+      await logOffTopicQuery(`GRID-PLAN: ${plants}`, '/api/grid-plan', env);
+      return new Response(JSON.stringify({
+        response: createRejectionMessage(validation),
+        isOffTopic: true,
+        validationReason: validation.reason
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+
+    const prompt = createGridPlanPrompt(width, length, plants, location, zone, soilType);
+    const response = await callClaudeAPI(prompt, env.ANTHROPIC_API_KEY, 1500);
+
+    return new Response(JSON.stringify({
+      response: response.content[0].text,
+      usage: response.usage,
+      isOffTopic: false
+    }), {
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+
+  } catch (error) {
+    return new Response(JSON.stringify({
+      error: 'Failed to generate grid plan',
+      details: error.message
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  }
+}
+
 async function callClaudeAPI(prompt, apiKey, maxTokens = 1000) {
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -462,4 +512,46 @@ Please provide:
 6. Ecological/botanical context for the issue
 
 Focus exclusively on organic, sustainable, and permaculture-aligned solutions. Consider the plant's role in the broader ecosystem.`;
+}
+
+function createGridPlanPrompt(width, length, plants, location = 'Iowa, Zone 5', zone = '5', soilType = 'loam') {
+  return `You are an expert permaculture designer specializing in spatial garden layout and plant spacing.
+
+SCOPE: You create practical, spatial garden plans using permaculture principles for the given plot size and location.
+
+PLOT DETAILS:
+- Dimensions: ${width}ft × ${length}ft (Area: ${width * length} sq ft)
+- Location: ${location}
+- USDA Zone: ${zone}
+- Soil Type: ${soilType}
+- Plants to include: ${plants}
+
+Please provide:
+1. **DESIGN RECOMMENDATIONS** (2-3 paragraphs)
+   - Overall layout strategy considering space and zone
+   - Companion planting relationships
+   - Spacing requirements for each plant
+   - Soil preparation and amendments
+   - Seasonal planting timeline
+
+2. **PLANT PLACEMENT GUIDE** (structured format)
+   For each plant, provide:
+   - Plant name
+   - Quantity/spacing in feet (e.g., "24 inches apart")
+   - Suggested position in the garden (N, S, E, W, Center, etc.)
+   - Companion plants (which ones to place nearby)
+   - Planting depth and height at maturity
+
+3. **VISUAL LAYOUT DESCRIPTION**
+   - Describe the optimal arrangement as if looking down at the ${width}ft × ${length}ft plot
+   - Include sun exposure considerations
+   - Water management zones
+   - Soil amendments per zone
+
+4. **CARE NOTES**
+   - Watering schedule and zones
+   - Maintenance timeline
+   - Succession planting for continuous harvest (if applicable)
+
+Make this practical and actionable for someone building this garden.`;
 }
