@@ -2819,8 +2819,13 @@ ${new Date().toLocaleString()}
                 const zone = localStorage.userZone || '5';
                 const soilType = localStorage.userSoilType || 'loam';
 
+                // Calculate API base URL (same as in load event)
+                const API_BASE = window.location.hostname === 'localhost'
+                    ? 'http://localhost:3001/api'
+                    : 'https://permaculture-ai-worker.dreadcrownest.workers.dev/api';
+
                 // Call API
-                const response = await fetch('/api/grid-plan', {
+                const response = await fetch(`${API_BASE}/grid-plan`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
