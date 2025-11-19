@@ -662,12 +662,443 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(0, 255, 136, 0.5);
         }
+
+        .history-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .history-modal.active {
+            display: flex;
+        }
+
+        .history-content {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.2);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+            padding-bottom: 15px;
+        }
+
+        .history-header h2 {
+            color: var(--accent-green);
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .history-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .history-close:hover {
+            color: var(--accent-green);
+        }
+
+        .history-item {
+            background: var(--bg-card);
+            border-left: 3px solid var(--accent-green);
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: rgba(0, 255, 136, 0.1);
+            border-left-color: var(--accent-blue);
+            transform: translateX(4px);
+        }
+
+        .history-item-tab {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .history-item-query {
+            font-size: 13px;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .history-item-time {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .history-empty {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 40px 20px;
+            font-size: 14px;
+        }
+
+        /* Mobile Responsive Optimizations */
+        @media (max-width: 480px) {
+            body {
+                background-attachment: fixed;
+            }
+
+            .container {
+                max-width: 100%;
+                min-height: 100vh;
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .header {
+                padding: 25px 15px 20px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+                margin-bottom: 6px;
+            }
+
+            .header p {
+                font-size: 12px;
+            }
+
+            .location-tag {
+                top: 12px;
+                left: 15px;
+                font-size: 10px;
+                padding: 5px 10px;
+            }
+
+            .moon-phase {
+                top: 12px;
+                right: 45px;
+            }
+
+            .season-indicator {
+                top: 42px;
+                right: 15px;
+                font-size: 11px;
+            }
+
+            button[onclick="toggleHistoryModal()"] {
+                top: 12px;
+                right: 15px;
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+
+            .nav-tab {
+                padding: 14px 8px;
+                font-size: 12px;
+            }
+
+            .tab-content {
+                padding: 20px 15px;
+                min-height: auto;
+            }
+
+            .input-group {
+                margin-bottom: 18px;
+            }
+
+            .input-group label {
+                font-size: 12px;
+                margin-bottom: 8px;
+            }
+
+            .input-group input,
+            .input-group textarea,
+            .input-group select {
+                padding: 12px 14px;
+                font-size: 14px;
+                border-radius: 6px;
+            }
+
+            .input-group textarea {
+                min-height: 70px;
+            }
+
+            .btn {
+                padding: 14px 20px;
+                font-size: 13px;
+                border-radius: 6px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .response-box {
+                padding: 40px 15px 15px;
+                font-size: 13px;
+                line-height: 1.6;
+                min-height: 100px;
+                border-radius: 8px;
+            }
+
+            .copy-btn {
+                top: 12px;
+                right: 12px;
+                padding: 6px 10px;
+                font-size: 10px;
+            }
+
+            .char-counter {
+                font-size: 10px;
+                bottom: -18px;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                margin-bottom: 18px;
+            }
+
+            .quick-action {
+                padding: 15px 12px;
+            }
+
+            .quick-action .icon {
+                font-size: 24px;
+                margin-bottom: 8px;
+            }
+
+            .quick-action .label {
+                font-size: 11px;
+            }
+
+            .feature-card {
+                padding: 15px;
+                margin-bottom: 12px;
+            }
+
+            .feature-card h3 {
+                font-size: 15px;
+                margin-bottom: 8px;
+            }
+
+            .feature-card p {
+                font-size: 12px;
+                line-height: 1.5;
+            }
+
+            .section-title {
+                font-size: 18px;
+                margin-bottom: 18px;
+            }
+
+            .error-message {
+                padding: 12px;
+                font-size: 12px;
+                border-radius: 6px;
+            }
+
+            .phase-indicator {
+                margin-top: 30px;
+                font-size: 11px;
+            }
+
+            #exportControls {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                margin-top: 15px;
+            }
+
+            #exportControls .btn {
+                padding: 12px;
+                font-size: 12px;
+            }
+
+            .history-content {
+                max-width: 90%;
+                padding: 20px;
+            }
+
+            .history-header {
+                margin-bottom: 15px;
+                padding-bottom: 12px;
+            }
+
+            .history-header h2 {
+                font-size: 18px;
+            }
+
+            .history-item {
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+
+            .history-item-query {
+                font-size: 12px;
+            }
+
+            .history-item-tab {
+                font-size: 9px;
+            }
+
+            .moon-tooltip {
+                right: -20px;
+                top: 45px;
+                min-width: 160px;
+                padding: 10px 12px;
+            }
+
+            .moon-tooltip-title {
+                font-size: 12px;
+            }
+
+            .moon-tooltip-name {
+                font-size: 13px;
+            }
+
+            .moon-tooltip-detail {
+                font-size: 10px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .container {
+                max-width: 100%;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .nav-tab {
+                font-size: 11px;
+                padding: 12px 6px;
+            }
+
+            .btn {
+                padding: 12px 16px;
+                font-size: 12px;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            #exportControls {
+                grid-template-columns: 1fr;
+            }
+
+            #monthsGrid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .month-card {
+                padding: 12px !important;
+            }
+
+            .month-title {
+                font-size: 13px !important;
+            }
+
+            .month-tasks {
+                font-size: 12px !important;
+            }
+        }
+    </style>
+
+    <style>
+        .month-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .month-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--accent-green), var(--accent-blue));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .month-card:hover {
+            border-color: var(--accent-green);
+            background: rgba(0, 255, 136, 0.05);
+            transform: translateY(-2px);
+            box-shadow: var(--glow);
+        }
+
+        .month-card:hover::before {
+            opacity: 1;
+        }
+
+        .month-emoji {
+            font-size: 24px;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 0 4px rgba(0, 255, 136, 0.3));
+        }
+
+        .month-title {
+            color: var(--accent-green);
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-family: 'Space Grotesk', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .month-tasks {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .month-tasks li {
+            margin-bottom: 4px;
+            margin-left: 16px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <div class="location-tag" onclick="editLocation()" style="cursor: pointer;" title="Click to edit location">Zone 5 • Iowa</div>
+            <button onclick="toggleHistoryModal()" style="position: absolute; top: 15px; right: 80px; background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.3); color: var(--accent-green); padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(0, 255, 136, 0.2)'" onmouseout="this.style.background='rgba(0, 255, 136, 0.1)'">📖 History</button>
             <div class="moon-phase" id="moonPhase">
                 <div class="moon-visual" id="moonVisual"></div>
                 <div class="moon-tooltip">
@@ -685,6 +1116,7 @@
             <button class="nav-tab active" data-tab="ask">Consult</button>
             <button class="nav-tab" data-tab="plan">Design</button>
             <button class="nav-tab" data-tab="diagnose">Heal</button>
+            <button class="nav-tab" data-tab="planner">Plan</button>
             <button class="nav-tab" data-tab="data">Sense</button>
         </div>
         
@@ -758,9 +1190,14 @@
                 </div>
                 
                 <button class="btn" onclick="generatePlan()">Generate Blueprint</button>
-                
+
                 <div id="planResponse" class="response-box" style="display:none;">
                     <p>Synthesizing design...</p>
+                </div>
+
+                <div id="exportControls" style="display:none; margin-top:20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <button class="btn" onclick="exportDesignJSON()" style="background: linear-gradient(135deg, #a855f7 0%, #06b6d4 100%); padding: 12px; font-size: 13px;">📥 JSON Export</button>
+                    <button class="btn" onclick="exportDesignText()" style="background: linear-gradient(135deg, #a855f7 0%, #06b6d4 100%); padding: 12px; font-size: 13px;">📄 Text Export</button>
                 </div>
             </div>
             
@@ -796,6 +1233,24 @@
                 </div>
             </div>
             
+            <!-- Seasonal Planner Tab -->
+            <div class="tab-panel" id="planner">
+                <h2 class="section-title">Seasonal Planner</h2>
+
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 15px;">Month-by-month permaculture guidance for your region</p>
+                    <button class="btn" onclick="generateSeasonalPlan()">🗓️ Generate Seasonal Guide</button>
+                </div>
+
+                <div id="plannerResponse" class="response-box" style="display:none;">
+                    <p>Preparing seasonal guidance...</p>
+                </div>
+
+                <div id="plannerCalendar" style="display:none;">
+                    <div id="monthsGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;"></div>
+                </div>
+            </div>
+
             <!-- Data Tab -->
             <div class="tab-panel" id="data">
                 <h2 class="section-title">Sensor Network</h2>
@@ -823,6 +1278,19 @@
                 <p class="phase-indicator">
                     Neural sensor integration • Phase II development
                 </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div class="history-modal" id="historyModal">
+        <div class="history-content">
+            <div class="history-header">
+                <h2>Query History</h2>
+                <button class="history-close" onclick="toggleHistoryModal()">×</button>
+            </div>
+            <div id="historyList" class="history-list">
+                <div class="history-empty">No queries yet. Start asking!</div>
             </div>
         </div>
     </div>
@@ -1163,7 +1631,11 @@
         }
         
         showResponse(data.response, responseDiv);
-        
+
+                // Add to history
+                const historyMode = currentFocus ? currentFocus : null;
+                addQueryToHistory(question, data.response, 'ask', historyMode);
+
     } catch (error) {
         console.error('Transmission error:', error);
         showError(`Connection disrupted: ${error.message}`, responseDiv);
@@ -1171,7 +1643,7 @@
         resetButton(button, 'Channel Response');
     }
 }
-        
+
         async function generatePlan() {
             const space = document.getElementById('spaceSize').value;
             const soil = document.getElementById('soilType').value;
@@ -1205,13 +1677,91 @@
                 }
                 
                 showResponse(data.response, responseDiv);
-                
+
+                // Store design data for export
+                const designData = {
+                    timestamp: new Date().toISOString(),
+                    spaceSize: space,
+                    soilType: soil,
+                    goals: goals,
+                    location: `${userLocation}, Zone ${userZone}`,
+                    response: data.response
+                };
+                localStorage.setItem('lastDesign', JSON.stringify(designData));
+
+                // Show export controls
+                document.getElementById('exportControls').style.display = 'grid';
+
+                // Add to history
+                const planQuery = `Space: ${space}, Soil: ${soil}, Goals: ${goals}`;
+                addQueryToHistory(planQuery, data.response, 'plan', null);
+
             } catch (error) {
                 console.error('Generation error:', error);
                 showError(`Blueprint synthesis failed: ${error.message}`, responseDiv);
             } finally {
                 resetButton(button, 'Generate Blueprint');
             }
+        }
+
+        // Design export functions
+        function exportDesignJSON() {
+            const designData = localStorage.getItem('lastDesign');
+            if (!designData) {
+                alert('No design to export. Generate a blueprint first.');
+                return;
+            }
+
+            const data = JSON.parse(designData);
+            const jsonString = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `permaculture-design-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function exportDesignText() {
+            const designData = localStorage.getItem('lastDesign');
+            if (!designData) {
+                alert('No design to export. Generate a blueprint first.');
+                return;
+            }
+
+            const data = JSON.parse(designData);
+            const textContent = `
+PERMACULTURE DESIGN BLUEPRINT
+Generated: ${new Date(data.timestamp).toLocaleString()}
+
+DESIGN PARAMETERS:
+================
+Location: ${data.location}
+Space Size: ${data.spaceSize}
+Soil Type: ${data.soilType}
+Goals: ${data.goals}
+
+RECOMMENDED DESIGN:
+==================
+${data.response}
+
+---
+Exported from Permaculture AI
+${new Date().toLocaleString()}
+`.trim();
+
+            const blob = new Blob([textContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `permaculture-design-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         }
         
         async function diagnoseIssue() {
@@ -1252,7 +1802,11 @@
                 }
                 
                 showResponse(data.response, responseDiv);
-                
+
+                // Add to history
+                const diagQuery = `Plant: ${plant}, Problem: ${problem}, Timeframe: ${timeframe}`;
+                addQueryToHistory(diagQuery, data.response, 'diagnose', null);
+
             } catch (error) {
                 console.error('Diagnostic error:', error);
                 showError(`Analysis interrupted: ${error.message}`, responseDiv);
@@ -1260,7 +1814,7 @@
                 resetButton(button, 'Analyze & Remedy');
             }
         }
-        
+
         // Helper functions
         function setLoadingState(button, responseDiv, message) {
             button.disabled = true;
@@ -1402,6 +1956,244 @@
                 console.warn('⚠️ Connection unstable:', error.message);
             }
         });
+
+        // History Management Functions
+        const HistoryManager = {
+            storageKey: 'queryHistory',
+            maxItems: 20,
+
+            add(query, response, tab, mode = null) {
+                const history = this.getAll();
+                const item = {
+                    id: Date.now(),
+                    timestamp: new Date().toISOString(),
+                    query: query,
+                    response: response,
+                    tab: tab,
+                    mode: mode
+                };
+
+                history.unshift(item);
+                // Keep only last N items
+                if (history.length > this.maxItems) {
+                    history.pop();
+                }
+
+                localStorage.setItem(this.storageKey, JSON.stringify(history));
+                renderHistory();
+            },
+
+            getAll() {
+                try {
+                    const stored = localStorage.getItem(this.storageKey);
+                    return stored ? JSON.parse(stored) : [];
+                } catch (e) {
+                    console.error('Error reading history:', e);
+                    return [];
+                }
+            },
+
+            clear() {
+                localStorage.removeItem(this.storageKey);
+                renderHistory();
+            }
+        };
+
+        function toggleHistoryModal() {
+            const modal = document.getElementById('historyModal');
+            modal.classList.toggle('active');
+            if (modal.classList.contains('active')) {
+                renderHistory();
+            }
+        }
+
+        function renderHistory() {
+            const historyList = document.getElementById('historyList');
+            const history = HistoryManager.getAll();
+
+            if (history.length === 0) {
+                historyList.innerHTML = '<div class="history-empty">No queries yet. Start asking!</div>';
+                return;
+            }
+
+            historyList.innerHTML = history.map(item => {
+                const date = new Date(item.timestamp);
+                const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                const querySnippet = item.query.substring(0, 50) + (item.query.length > 50 ? '...' : '');
+                const modeStr = item.mode ? ` • ${item.mode}` : '';
+
+                return `
+                    <div class="history-item" onclick="restoreHistoryItem(${item.id})">
+                        <div class="history-item-tab">${item.tab}${modeStr}</div>
+                        <div class="history-item-query">${escapeHTML(querySnippet)}</div>
+                        <div class="history-item-time">${dateStr} ${timeStr}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function restoreHistoryItem(id) {
+            const history = HistoryManager.getAll();
+            const item = history.find(h => h.id === id);
+            if (!item) return;
+
+            // Close modal
+            document.getElementById('historyModal').classList.remove('active');
+
+            // Switch to appropriate tab
+            const tabMap = {
+                'ask': 'ask',
+                'plan': 'plan',
+                'diagnose': 'diagnose',
+                'data': 'data'
+            };
+
+            const tabId = tabMap[item.tab] || 'ask';
+            const tabPanel = document.getElementById(tabId);
+            if (tabPanel) {
+                // Activate tab
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+
+                const tabBtn = Array.from(document.querySelectorAll('.nav-tab')).find(t => t.getAttribute('data-tab') === tabId);
+                if (tabBtn) {
+                    tabBtn.classList.add('active');
+                }
+                tabPanel.classList.add('active');
+
+                // Show response
+                const responseBox = {
+                    'ask': 'aiResponse',
+                    'plan': 'planResponse',
+                    'diagnose': 'diagnoseResponse'
+                }[item.tab];
+
+                if (responseBox) {
+                    const responseDiv = document.getElementById(responseBox);
+                    if (responseDiv) {
+                        const formattedText = formatResponse(item.response);
+                        responseDiv.innerHTML = `
+                            <button class="copy-btn" onclick="copyResponseText(this.parentElement)">
+                                📋 Copy
+                            </button>
+                            <div class="response-content">${formattedText}</div>
+                        `;
+                        responseDiv.setAttribute('data-raw-text', item.response);
+                        responseDiv.style.display = 'block';
+                    }
+                }
+            }
+        }
+
+        function escapeHTML(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Add to history after each response
+        function addQueryToHistory(query, response, tab, mode = null) {
+            HistoryManager.add(query, response, tab, mode);
+        }
+
+        // Seasonal Planner Functions
+        async function generateSeasonalPlan() {
+            const responseDiv = document.getElementById('plannerResponse');
+            const calendarDiv = document.getElementById('plannerCalendar');
+            const button = event.target;
+
+            const userLocation = localStorage.getItem('userLocation') || 'Iowa';
+            const userZone = localStorage.getItem('userZone') || '5';
+
+            setLoadingState(button, responseDiv, 'Generating seasonal guidance...');
+
+            try {
+                const response = await fetch(`${API_BASE}/seasonal`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        location: `${userLocation}, Zone ${userZone}`
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // If seasonal endpoint doesn't exist yet, create a client-side version
+                    if (response.status === 404) {
+                        generateSeasonalPlanLocal();
+                        return;
+                    }
+                    throw new Error(data.error || `System error: ${response.status}`);
+                }
+
+                displaySeasonalPlan(data.response, responseDiv, calendarDiv);
+                addQueryToHistory('Seasonal Plan', data.response, 'planner', null);
+
+            } catch (error) {
+                console.error('Seasonal planning error:', error);
+                // Fallback to local generation
+                generateSeasonalPlanLocal();
+            } finally {
+                resetButton(button, '🗓️ Generate Seasonal Guide');
+            }
+        }
+
+        function generateSeasonalPlanLocal() {
+            const monthEmojis = ['❄️', '❄️', '🌱', '🌱', '☀️', '☀️', '☀️', '☀️', '🍂', '🍂', '🍂', '❄️'];
+            const monthTasks = {
+                0: ['Plan year ahead', 'Start seedlings indoors', 'Prepare beds'],
+                1: ['Maintain cold frames', 'Continue seed starting', 'Prune dormant trees'],
+                2: ['Divide perennials', 'Direct sow cool crops', 'Plant garlic cloves'],
+                3: ['Plant potatoes', 'Direct sow root crops', 'Mulch beds'],
+                4: ['Transplant seedlings', 'Plant warm season crops', 'Water regularly'],
+                5: ['Harvest spring crops', 'Plant succession herbs', 'Monitor for pests'],
+                6: ['Peak harvest season', 'Preserve surplus', 'Deep mulch systems'],
+                7: ['Plan fall plantings', 'Save seeds', 'Plant cool season crops'],
+                8: ['Harvest abundance', 'Process & preserve', 'Plant cover crops'],
+                9: ['Fall cleanup', 'Prepare for winter', 'Divide bulbs'],
+                10: ['Mulch perennials', 'Plant garlic', 'Maintain soil'],
+                11: ['Rest & plan', 'Maintain structures', 'Design next year']
+            };
+
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+
+            const calendarDiv = document.getElementById('plannerCalendar');
+            const monthsGrid = document.getElementById('monthsGrid');
+
+            let html = '';
+            for (let i = 0; i < 12; i++) {
+                const tasks = monthTasks[i];
+                const html_tasks = tasks.map(t => `<li>${t}</li>`).join('');
+
+                html += `
+                    <div class="month-card">
+                        <div class="month-emoji">${monthEmojis[i]}</div>
+                        <div class="month-title">${monthNames[i]}</div>
+                        <ul class="month-tasks">${html_tasks}</ul>
+                    </div>
+                `;
+            }
+
+            monthsGrid.innerHTML = html;
+            calendarDiv.style.display = 'block';
+            document.getElementById('plannerResponse').style.display = 'none';
+        }
+
+        function displaySeasonalPlan(response, responseDiv, calendarDiv) {
+            responseDiv.style.display = 'none';
+            calendarDiv.style.display = 'block';
+            // Parse response and display as calendar if API endpoint exists in future
+        }
     </script>
 </body>
 </html>
