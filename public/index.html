@@ -1132,6 +1132,86 @@
             border-radius: 4px;
             display: inline-block;
         }
+
+        .zone-card {
+            background: var(--bg-card);
+            border: 2px solid rgba(0, 255, 136, 0.2);
+            border-radius: 8px;
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .zone-card:hover {
+            border-color: var(--accent-green);
+            background: rgba(0, 255, 136, 0.05);
+            transform: translateY(-2px);
+            box-shadow: var(--glow);
+        }
+
+        .zone-card.active {
+            border-color: var(--accent-green);
+            background: rgba(0, 255, 136, 0.15);
+            box-shadow: var(--glow-strong);
+        }
+
+        .zone-number {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-green);
+            margin-bottom: 6px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .zone-temp {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .zone-info-title {
+            color: var(--accent-green);
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .zone-info-section {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+        }
+
+        .zone-info-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .zone-info-label {
+            color: var(--accent-green);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .zone-info-content {
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .zone-info-content li {
+            margin-left: 16px;
+            margin-bottom: 4px;
+        }
     </style>
 </head>
 <body>
@@ -1156,6 +1236,7 @@
             <button class="nav-tab active" data-tab="ask">Consult</button>
             <button class="nav-tab" data-tab="plan">Design</button>
             <button class="nav-tab" data-tab="guild">Guild</button>
+            <button class="nav-tab" data-tab="zones">Zones</button>
             <button class="nav-tab" data-tab="diagnose">Heal</button>
             <button class="nav-tab" data-tab="planner">Plan</button>
             <button class="nav-tab" data-tab="data">Sense</button>
@@ -1285,6 +1366,20 @@
                 <div id="guildVisualization" style="display:none;">
                     <svg id="guildSVG" viewBox="0 0 400 400" style="width: 100%; height: auto; background: var(--bg-card); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 8px; margin: 20px 0;"></svg>
                     <div id="guildCompanions" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
+            <!-- Zone Map Tab -->
+            <div class="tab-panel" id="zones">
+                <h2 class="section-title">Hardiness Zones</h2>
+
+                <div style="margin-bottom: 20px;">
+                    <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 15px;">Click on a zone to see characteristics and recommendations for your region.</p>
+                    <div id="zoneGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;"></div>
+                </div>
+
+                <div id="zoneInfo" style="display:none; background: var(--bg-card); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 8px; padding: 16px; margin-top: 20px;">
+                    <div id="zoneInfoContent"></div>
                 </div>
             </div>
 
@@ -2569,6 +2664,140 @@ ${new Date().toLocaleString()}
             });
 
             svg.innerHTML = svgContent;
+        }
+
+        // Zone Map Database
+        const zoneDatabase = {
+            3: {
+                tempRange: '-40 to -30°F',
+                season: 'Short growing season',
+                crops: ['Cold-hardy trees', 'Root vegetables', 'Cool season greens', 'Herbs like thyme'],
+                strategies: ['Season extension (cold frames)', 'Focus on perennials', 'Hardy rootstocks', 'Microclimate design'],
+                example: 'Northern Minnesota, Maine'
+            },
+            4: {
+                tempRange: '-30 to -20°F',
+                season: 'Moderate growing season',
+                crops: ['Apple, pear trees', 'Berries', 'Cool season vegetables', 'Winter squash'],
+                strategies: ['Spring protection', 'Fall succession planting', 'Mulching systems', 'Perennial guild focus'],
+                example: 'Upstate New York, Michigan'
+            },
+            5: {
+                tempRange: '-20 to -10°F',
+                season: 'Good growing season',
+                crops: ['Stone fruits', 'Most vegetables', 'Herbs', 'Some evergreens'],
+                strategies: ['Diverse plantings', 'Guild systems', 'Water management', 'Pollinator support'],
+                example: 'Iowa, Illinois, Ohio'
+            },
+            6: {
+                tempRange: '-10 to 0°F',
+                season: 'Extended growing season',
+                crops: ['Most fruit trees', 'Tender perennials', 'Warm season vegetables', 'Nut trees'],
+                strategies: ['Stacking functions', 'Deep mulching', 'Pest management', 'Polyculture systems'],
+                example: 'Pennsylvania, Kentucky'
+            },
+            7: {
+                tempRange: '0 to 10°F',
+                season: 'Long growing season',
+                crops: ['Citrus (some)', 'Tender shrubs', 'Heat-loving crops', 'Pecans'],
+                strategies: ['Shade strategies', 'Summer cooling', 'Frost management', 'Perennial focus'],
+                example: 'North Carolina, Oklahoma'
+            },
+            8: {
+                tempRange: '10 to 20°F',
+                season: 'Very long growing season',
+                crops: ['Citrus', 'Tropical fruits', 'Tender perennials', 'Year-round vegetables'],
+                strategies: ['Water conservation', 'Summer shading', 'Year-round planning', 'Heat-hardy cultivars'],
+                example: 'Texas, South Carolina'
+            },
+            9: {
+                tempRange: '20 to 30°F',
+                season: 'Year-round growing',
+                crops: ['Citrus', 'Avocado', 'Winter crops', 'Tropical fruits'],
+                strategies: ['Frost protection', 'Summer cooling', 'Water management', 'Pest control'],
+                example: 'Southern California, Florida'
+            }
+        };
+
+        // Initialize Zone Map on page load
+        window.addEventListener('load', function() {
+            initializeZoneMap();
+        });
+
+        function initializeZoneMap() {
+            const zoneGrid = document.getElementById('zoneGrid');
+            let html = '';
+
+            for (let zone = 3; zone <= 9; zone++) {
+                const data = zoneDatabase[zone];
+                html += `
+                    <div class="zone-card" onclick="displayZoneInfo(${zone})">
+                        <div class="zone-number">Zone ${zone}</div>
+                        <div class="zone-temp">${data.tempRange}</div>
+                    </div>
+                `;
+            }
+
+            zoneGrid.innerHTML = html;
+        }
+
+        function displayZoneInfo(zone) {
+            const data = zoneDatabase[zone];
+            const infoDiv = document.getElementById('zoneInfo');
+            const contentDiv = document.getElementById('zoneInfoContent');
+
+            // Update active zone card
+            document.querySelectorAll('.zone-card').forEach((card, index) => {
+                card.classList.remove('active');
+                if (index + 3 === zone) card.classList.add('active');
+            });
+
+            // Build info content
+            let html = `
+                <div class="zone-info-title">Zone ${zone}: ${data.tempRange}</div>
+
+                <div class="zone-info-section">
+                    <div class="zone-info-label">Growing Season</div>
+                    <div class="zone-info-content">${data.season}</div>
+                </div>
+
+                <div class="zone-info-section">
+                    <div class="zone-info-label">Well-Suited Crops</div>
+                    <div class="zone-info-content"><ul>
+            `;
+
+            data.crops.forEach(crop => {
+                html += `<li>🌱 ${crop}</li>`;
+            });
+
+            html += `</ul></div>
+                </div>
+
+                <div class="zone-info-section">
+                    <div class="zone-info-label">Design Strategies</div>
+                    <div class="zone-info-content"><ul>
+            `;
+
+            data.strategies.forEach(strategy => {
+                html += `<li>🎯 ${strategy}</li>`;
+            });
+
+            html += `</ul></div>
+                </div>
+
+                <div class="zone-info-section">
+                    <div class="zone-info-label">Example Regions</div>
+                    <div class="zone-info-content">📍 ${data.example}</div>
+                </div>
+            `;
+
+            contentDiv.innerHTML = html;
+            infoDiv.style.display = 'block';
+
+            // Scroll to info
+            setTimeout(() => {
+                infoDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
         }
     </script>
 </body>
